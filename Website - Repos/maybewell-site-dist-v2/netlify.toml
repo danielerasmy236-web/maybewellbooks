@@ -1,6 +1,12 @@
 # This site's files sit at the same level as this config —
 # no "publish" directory needed; Netlify already deploys this folder as-is.
 
+[functions]
+  directory = "netlify/functions"
+  # PDFs bundled here are NOT publicly served — only readable from inside
+  # the function at runtime. download.js gates access with a signed token.
+  included_files = ["netlify/functions/_assets/**"]
+
 [[redirects]]
   from = "https://www.maybewellbooks.com/*"
   to = "https://maybewellbooks.com/:splat"
