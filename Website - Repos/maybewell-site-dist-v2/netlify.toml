@@ -1,0 +1,26 @@
+# This site's files sit at the same level as this config —
+# no "publish" directory needed; Netlify already deploys this folder as-is.
+
+[[redirects]]
+  from = "https://www.maybewellbooks.com/*"
+  to = "https://maybewellbooks.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
