@@ -7,3 +7,11 @@ Website - Repos/maybewell-site-dist-v2.zip
 
 # Local Claude Code settings (machine-specific)
 **/.claude/settings.local.json
+
+# Local Netlify folder
+.netlify
+
+# PDF factory: local runtime artifacts (not source)
+agent-tools/**/__pycache__/
+agent-tools/logs/*.log
+agent-tools/logs/run_log.txt

@@ -1,0 +1,58 @@
+{
+  "queue": [
+    {
+      "id": "mazes",
+      "generator": "generate_mazes",
+      "title": "Mazes of the Lost City",
+      "category": "puzzles",
+      "status": "published",
+      "output": "Mazes of the Lost City/mazes-of-the-lost-city_v1.0_letter.pdf",
+      "site_path": "Website - Repos/maybewell-site-dist-v2/downloads/mazes-of-the-lost-city_v1.0_letter.pdf",
+      "page_count": 61,
+      "generated_at": "2026-07-15T12:47:31",
+      "published_at": "2026-07-15T13:03:00"
+    },
+    {
+      "id": "stem",
+      "generator": "generate_stem_pack",
+      "title": "Space STEM Pack",
+      "category": "stem",
+      "status": "pending"
+    },
+    {
+      "id": "story",
+      "generator": "generate_story_starters",
+      "title": "Story Starters",
+      "category": "writing",
+      "status": "pending"
+    },
+    {
+      "id": "autumn",
+      "generator": "generate_autumn_book",
+      "title": "The Autumn Book",
+      "category": "seasonal",
+      "status": "pending"
+    },
+    {
+      "id": "roadtrip",
+      "generator": "generate_road_trip_games",
+      "title": "Paper Games for Road Trips",
+      "category": "games",
+      "status": "pending"
+    },
+    {
+      "id": "logic",
+      "generator": "generate_logic_lab",
+      "title": "Little Logic Lab",
+      "category": "puzzles",
+      "status": "pending"
+    },
+    {
+      "id": "words",
+      "generator": "generate_word_search",
+      "title": "Word Search Safari",
+      "category": "puzzles",
+      "status": "pending"
+    }
+  ]
+}
