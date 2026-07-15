@@ -29,4 +29,14 @@
 [[headers]]
   for = "/assets/*"
   [headers.values]
+    # NOT "immutable" — this project doesn't rename bundle files on every
+    # content change (no real build-hash pipeline), so a browser must
+    # always revalidate rather than trust a cached copy for a year.
+    # (Book preview JPEGs never get overwritten in place — only added new
+    # — so they're safe to cache longer; see the override below.)
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+[[headers]]
+  for = "/assets/previews/*"
+  [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
