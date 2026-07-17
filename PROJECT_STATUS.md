@@ -9,17 +9,28 @@ An e-commerce site selling printable PDF activity books, at **maybewellbooks.com
 market: US + Southeast Asia. Prices $3–5 USD.
 
 The site is a **pre-built, minified React SPA with no build tooling** —
-`Website - Repos/maybewell-site-dist-v2/assets/index-c6785dad.js` is the only
-source file for the frontend (no package.json, no bundler). All frontend
+`Website - Repos/maybewell-site-dist-v2/assets/index-c3f2afa1.js` is the only
+source file for the frontend (no package.json, no bundler; the hash in the
+filename changes on every edit — check index.html for the current one). All frontend
 changes are done via careful surgical string-replacement on that minified
 file, verified with `node --check` before deploying. **This is the single
 most important thing to know before touching the site.**
 
 ## What's live right now
 
-- **3 real, purchasable products**: Draw What You Imagine ($5), The
-  Impossible Garden ($5), Mazes of the Lost City ($4). Each has a real PDF,
-  real page count, and 3 real preview-page images shown on its product page.
+- **4 real, purchasable products**: Draw What You Imagine ($5), The
+  Impossible Garden ($5), Mazes of the Lost City ($4), The World Is Watching
+  ($5, flagship "Field Notes" line, built 2026-07-16 — pareidolia field guide,
+  91 pages; build pipeline lives in `The World Is Watching/build/`, Figma
+  cover + samples at https://www.figma.com/design/qrEdlUEXAdmcLiIofEgoL5).
+  Each has a real PDF, real page count, and 3 real preview-page images shown
+  on its product page.
+- **Two company manifestos** ("On Offline Content", "On Printing It") as
+  in-app pages: footer link → index → two detail pages. Content lives in
+  `assets/manifesto-content.js` (same pattern as legal-content.js); English
+  only, ES block is a `ready:false` placeholder that falls back to EN —
+  TODO: translate. Pull-quotes surface on the home hero (M1) and product
+  buy CTA (M2).
 - **6 more products are "Coming soon"** in the catalog (not purchasable —
   gated both in the UI and server-side): Little Logic Lab, Space STEM Pack,
   Story Starters, Word Search Safari, The Autumn Book, Paper Games for Road
@@ -85,9 +96,10 @@ MAYBEWELL BOOKS/
 │   ├── run_next.py / run_weekly.sh
 │   └── generators/, mw_lib/, content/
 └── Website - Repos/maybewell-site-dist-v2/   <- the actual deployed site
-    ├── index.html                  <- loads legal-content.js, GSAP CDN, then the bundle
-    ├── assets/index-c6785dad.js    <- THE frontend (minified, hand-edited)
+    ├── index.html                  <- loads legal/manifesto content, GSAP CDN, then the bundle
+    ├── assets/index-c3f2afa1.js    <- THE frontend (minified, hand-edited)
     ├── assets/legal-content.js     <- Privacy/Terms/Cookies text (EN+ES)
+    ├── assets/manifesto-content.js <- the two manifestos (EN, ES pending)
     ├── assets/previews/            <- product preview page images
     ├── netlify.toml                <- functions config + cache headers
     └── netlify/functions/

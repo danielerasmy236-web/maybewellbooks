@@ -12,6 +12,7 @@ const PRODUCTS = {
   dwyi: { name: "Draw What You Imagine", price: 500, file: "draw-what-you-imagine_v1.1_letter.pdf" },
   garden: { name: "The Impossible Garden", price: 500, file: "the-impossible-garden_v1.0_letter.pdf" },
   mazes: { name: "Mazes of the Lost City", price: 400, file: "mazes-of-the-lost-city_v1.0_letter.pdf" },
+  twiw: { name: "The World Is Watching", price: 500, file: "the-world-is-watching_v1.0_letter.pdf" },
 };
 
 module.exports = { PRODUCTS };
