@@ -25,12 +25,22 @@ most important thing to know before touching the site.**
   cover + samples at https://www.figma.com/design/qrEdlUEXAdmcLiIofEgoL5).
   Each has a real PDF, real page count, and 3 real preview-page images shown
   on its product page.
-- **Two company manifestos** ("On Offline Content", "On Printing It") as
-  in-app pages: footer link → index → two detail pages. Content lives in
-  `assets/manifesto-content.js` (same pattern as legal-content.js); English
-  only, ES block is a `ready:false` placeholder that falls back to EN —
-  TODO: translate. Pull-quotes surface on the home hero (M1) and product
-  buy CTA (M2).
+- **"For Teachers and Educators" line — 6 more purchasable products**
+  (built 2026-07-17): Chain Story, Group Detective, and Build Without Words,
+  each as a $2 Single Sheet (3pp: activity / teacher guide / alternate) and
+  a $4 Weekly Module (7pp: teacher intro + 5 days + closing). All full-sheet,
+  no cutting, black-&-white-copier-safe (QA enforces a text-luminance check).
+  Build pipeline in `For Teachers and Educators/build/` (reuses TWIW fonts).
+  Own site section: "Teachers" nav item → landing page (`teachers` route,
+  component `MWTeach`, category `classroom`), copy explicitly positions the
+  line as enrichment, not curriculum.
+- **Three company manifestos** ("On Offline Content", "On Printing It",
+  "On Paper and Trees") as in-app pages: footer link → index → detail pages.
+  Content lives in `assets/manifesto-content.js` (same pattern as
+  legal-content.js); English only, ES block is a `ready:false` placeholder
+  that falls back to EN — TODO: translate. Pull-quotes surface on the home
+  hero (M1), product buy CTA (M2, all available products), and buy CTA of
+  products over 50 pages (M3).
 - **6 more products are "Coming soon"** in the catalog (not purchasable —
   gated both in the UI and server-side): Little Logic Lab, Space STEM Pack,
   Story Starters, Word Search Safari, The Autumn Book, Paper Games for Road

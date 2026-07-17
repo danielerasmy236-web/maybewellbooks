@@ -11,11 +11,12 @@ window.__MW_MANIFESTO__ = {
   en: {
     ready: true,
     index_title: "Our Manifesto",
-    index_sub: "Two promises we print at the front of everything we make.",
+    index_sub: "Three promises we print at the front of everything we make.",
     read_it: "Read it",
     // Pull-quotes surfaced elsewhere in the site:
     pull1: "We don't make apps. We make paper.",   // homepage, near the hero
     pull2: "Print it. Keep it. Mark it up. It's yours.", // product page, at the buy CTA
+    pull3: "Print what you'll actually use.",      // product pages over ~50 pages, at the buy CTA
     m1: {
       kicker: "MANIFESTO 01 — ON OFFLINE CONTENT",
       title: "On Offline Content",
@@ -43,6 +44,19 @@ window.__MW_MANIFESTO__ = {
       closer: "Print it. Keep it. Mark it up. It's yours.",
       sign: "— Maybewell Books",
     },
+    m3: {
+      kicker: "MANIFESTO 03 — ON PAPER AND TREES",
+      title: "On Paper and Trees",
+      lead: "Trees are the heroes of this moment.",
+      paras: [
+        "Trees give us air to breathe. They give us shade on a hot day. They give us a place to sit down when we need one. And they give us paper — paper that lets us live a moment fully, immediately, without a screen standing between us and it. That's why we use paper.",
+        "We know what we're asking. Some of our books run 80 pages or more, and in a moment when everyone's counting what they consume, that's not nothing. We don't pretend otherwise.",
+        "So we mean it when we say: print what you'll actually use. Skip the pages you know you won't fill. Share one copy between a family instead of printing five. And when you can, choose recycled paper, or a printer that plants what it uses.",
+        "A tree spent years growing so a handful of its pages could hold your handwriting, your drawings, a kid's terrible-wonderful joke scribbled in the margin.",
+      ],
+      closer: "That's a fair trade only if we don't waste it.",
+      sign: "— Maybewell Books",
+    },
   },
   es: {
     // TODO: Spanish translation pending — app falls back to English while
@@ -53,8 +67,10 @@ window.__MW_MANIFESTO__ = {
     read_it: "",
     pull1: "",
     pull2: "",
+    pull3: "",
     m1: { kicker: "", title: "", lead: "", paras: [], closer: "", sign: "" },
     m2: { kicker: "", title: "", lead: "", paras: [], closer: "", sign: "" },
+    m3: { kicker: "", title: "", lead: "", paras: [], closer: "", sign: "" },
   },
 };
 
