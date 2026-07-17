@@ -13,6 +13,16 @@
   status = 301
   force = true
 
+# Missing asset files must 404, NOT fall through to the SPA rewrite below.
+# Without this, a preview URL requested before its file exists gets served
+# index.html stamped with the previews' long-lived cache header — poisoning
+# that URL in the visitor's browser cache long after the real file deploys
+# (this actually happened on 2026-07-17).
+[[redirects]]
+  from = "/assets/*"
+  to = "/404.html"
+  status = 404
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -39,4 +49,8 @@
 [[headers]]
   for = "/assets/previews/*"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    # One day, NOT immutable-for-a-year: "append-only" turned out to be an
+    # insufficient guarantee — a URL can be requested (and its response
+    # cached) before the file exists. A daily revalidation costs a few 304s
+    # and makes any cache poisoning self-healing within 24h.
+    Cache-Control = "public, max-age=86400"
