@@ -41,6 +41,19 @@ most important thing to know before touching the site.**
   that falls back to EN — TODO: translate. Pull-quotes surface on the home
   hero (M1), product buy CTA (M2, all available products), and buy CTA of
   products over 50 pages (M3).
+- **Two standing Claude Code agents** (2026-07-18), separate from the local
+  PDF-factory `launchd` agent below: `daily-product-builder` (runs daily,
+  builds the next `Pending` row of `PRODUCT_QUEUE.md` through
+  Figma → ReportLab → PyMuPDF QA, sends a push notification, then hard-stops
+  for Dan's approval before touching git/the site at all — nothing ships
+  without his explicit sign-off in chat) and `product-brainstormer` (runs
+  weekly, proposes 3–5 new product ideas from catalog/manifesto context,
+  and only files an idea into the queue once Dan approves it specifically).
+  Agent definitions: `Website - Repos/maybewell-site-dist-v2/.claude/agents/`.
+  Queue + specs + status table: `PRODUCT_QUEUE.md` at repo root (currently a
+  7-day Field Notes batch). Notifications use the built-in `PushNotification`
+  tool (reaches Dan's phone via Claude Code's Remote Control) — no Telegram
+  bot or external service involved.
 - **6 more products are "Coming soon"** in the catalog (not purchasable —
   gated both in the UI and server-side): Little Logic Lab, Space STEM Pack,
   Story Starters, Word Search Safari, The Autumn Book, Paper Games for Road
@@ -123,24 +136,33 @@ MAYBEWELL BOOKS/
 
 ## Hard-won lessons (read before editing the bundle again)
 
-0. **`git push` does NOT deploy the site.** The Netlify site
-   (`maybewellbooks`, site id `12dd4eba-e81c-4fa7-87d5-ad18b5d37496`) has no
-   Git integration — every production deploy so far was made manually with
-   `netlify deploy --prod` from `Website - Repos/maybewell-site-dist-v2/`
-   (the folder is CLI-linked via `.netlify/state.json`). Discovered
-   2026-07-17 when two days of pushed work (TWIW, manifestos, Teachers
-   line) never appeared on the live site and new preview images resolved to
-   the SPA's index.html (200 text/html) instead of JPEGs. After any release:
-   verify live by fetching a newly-added asset URL and checking its
-   content-type. Consider connecting the GitHub repo in Netlify to make
-   pushes deploy automatically.
+0. **`git push` to `main` deploys to production immediately — as of
+   2026-07-18.** The Netlify site (`maybewellbooks`, site id
+   `12dd4eba-e81c-4fa7-87d5-ad18b5d37496`) is now Git-connected (base dir
+   `Website - Repos/maybewell-site-dist-v2`, no build command, functions
+   dir `netlify/functions`); a push is the release, with no manual step and
+   no confirmation prompt in between. There is no more safety margin
+   between "committed" and "live" — never push work-in-progress.
+   *Before 2026-07-18* the site had no Git integration at all and every
+   deploy was a manual `netlify deploy --prod` from the site folder; that
+   history is why any product-builder run still verifies a push actually
+   went live (fetch a newly-added asset URL, confirm `image/jpeg` not
+   `text/html`) instead of trusting the push alone. Also fixed 2026-07-18:
+   missing `/assets/*` now 404 (new `404.html`) instead of falling through
+   to the SPA rewrite and getting cached as HTML under the previews'
+   long-lived cache header — that SPA-fallback cache poisoning was the
+   original cause of a "previews are broken" report, compounded by the
+   site being two days stale from the pre-Git-integration gap.
 
 1. **Always rename `index-*.js` when you change it**, and update the
    `<script src>` in `index.html` to match. `/assets/*` is cached
    `must-revalidate, max-age=300` (deliberately NOT `immutable` — that bit
    us once already, see git history "Fix stale browser cache").
-   `/assets/previews/*` IS cached immutable long-term since those files are
-   genuinely append-only.
+   `/assets/previews/*` is cached `max-age=86400` (one day, NOT immutable —
+   downgraded 2026-07-18: "append-only" wasn't a strong enough guarantee,
+   since a URL can get cached as missing/HTML before its file actually
+   deploys; a daily revalidation makes that self-healing instead of
+   permanent).
 2. **Never trust brace/paren counts alone when inserting new code into the
    minified bundle.** A statement that "looks like" a clean boundary
    (`})};` before `function ap(...)`) can actually be the tail end of a

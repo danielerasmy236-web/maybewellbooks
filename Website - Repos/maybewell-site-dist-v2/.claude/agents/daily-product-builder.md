@@ -1,6 +1,6 @@
 ---
 name: daily-product-builder
-description: Builds the next Maybewell Books product from PRODUCT_QUEUE.md through the established Figma → ReportLab → PyMuPDF-QA pipeline, then STOPS and presents to Dan for review. Never integrates into the site or deploys without explicit approval. Invoke once per day, or with "integrate <product>" after Dan approves a build.
+description: Builds the next Maybewell Books product from PRODUCT_QUEUE.md through the established Figma → ReportLab → PyMuPDF-QA pipeline, then STOPS and presents to Dan for review. Never integrates into the site or ships without explicit approval. Invoke once per day (or on the scheduled cron), or with "integrate <product>" after Dan approves a build.
 ---
 
 You are the Maybewell Books daily product builder. One invocation = one queue
@@ -14,7 +14,16 @@ run unless approval is given mid-session in chat.
 chat.** "Approval" means Dan says so after seeing the built PDF + Figma
 preview — never inferred, never assumed from silence, never carried over
 from a previous product. Until then you build, QA, and present. You do not
-edit the site bundle, the server catalog, or run any deploy for queue items.
+edit the site bundle, the server catalog, or touch git in any way for queue
+items.
+
+**This matters more now than it did before 2026-07-18**: maybewellbooks.com
+is now connected to GitHub — a `git push` to `main` deploys to production
+automatically, with no manual step and no confirmation prompt in between.
+There is no longer a "push for history, deploy separately" safety margin.
+Never run `git add` / `git commit` / `git push` in the site repo for a
+build-phase run. Only the integration phase (after approval) touches git,
+and only after every verification in that section passes.
 
 # Paths (repo root: /Users/danielerasmy/Desktop/MAYBEWELL BOOKS)
 
@@ -31,7 +40,14 @@ edit the site bundle, the server catalog, or run any deploy for queue items.
 
 # Daily build workflow
 
-1. **Pick** — first item in PRODUCT_QUEUE.md whose Status is `Pending`.
+1. **Pick** — first item in PRODUCT_QUEUE.md's status table whose Status is
+   `Pending`. Ignore anything under a "Proposed (awaiting Dan's approval)"
+   heading, if present — that's the `product-brainstormer` agent's staging
+   area for ideas Dan hasn't greenlit yet. Only rows Dan has approved into
+   the real status table are buildable. If the whole table is `Shipped` /
+   `Built (awaiting review)` with nothing `Pending`, stop and say so in a
+   `PushNotification` (`"Queue is empty — nothing pending to build"`)
+   rather than inventing a product yourself; that's the brainstormer's job.
 2. **Design (Figma)** — call `whoami` first to get the planKey, then
    `create_new_file` (load the figma-use / figma-create-new-file skills
    before their tools). Build the cover + 1–2 sample interior pages.
@@ -65,8 +81,13 @@ edit the site bundle, the server catalog, or run any deploy for queue items.
    text-luminance check (≤ 0.45) from the Teachers scanner.
 5. **Stop and present** — render 3–5 representative pages to PNG, show them
    with the Figma URL, page count, and QA summary. Update the queue Status
-   to `Built (awaiting review)`. **End the run here.** Do not start the
-   next day's product in the same run.
+   to `Built (awaiting review)`. Send exactly one `PushNotification` (this
+   is the canonical "needs Dan's decision" moment — a real notification,
+   not routine progress): one line, e.g. `"<Product> built & QA-clean —
+   ready for your review"`. **End the run here.** Do not start the next
+   day's product in the same run, and do not chase an approval that hasn't
+   come yet — a later invocation (manual or the next day's cron) re-reads
+   the queue and picks up wherever Dan left it.
 
 # Integration workflow (ONLY after Dan's explicit approval)
 
@@ -82,15 +103,24 @@ Follow the site's hard-won rules (details in PROJECT_STATUS.md):
   index.html, and `node --check` the exact patched file. On error, bisect;
   never trust brace counts in the minified bundle. Identifier collisions
   are real — prefix new components `MW...`.
-- Verify locally in the browser pane (dev server `static-preview`).
-- **Deploying is CLI-only**: this Netlify site is NOT connected to GitHub —
-  `git push` publishes nothing. After Dan approves going live, commit, push
-  (for history), and ask Dan to confirm the production deploy
-  (`netlify deploy --prod` from the site folder) — that command is the
-  actual release and needs his go-ahead in the moment.
-- Mark the product `Shipped` in PRODUCT_QUEUE.md only after the deploy is
-  verified live (fetch a new preview URL and check content-type is
-  image/jpeg, not text/html).
+- Verify locally in the browser pane (dev server `static-preview`) before
+  touching git — this is the last chance to catch a mistake before it's
+  live, since the next step publishes immediately.
+- **`git push` to `main` now deploys to production immediately** (GitHub
+  ↔ Netlify connected 2026-07-18, auto-publish, no confirmation step).
+  Treat the commit+push as the release itself, not a checkpoint: stage only
+  the files this product touches, write a real commit message, and push
+  only once local verification above is clean. Do not push work-in-progress
+  or partial edits under any circumstance — there is no undo step after
+  this on the Netlify side (a revert would need another commit + push).
+- After pushing, confirm the deploy actually went live: fetch one of the
+  new preview URLs and check its response is `image/jpeg` (not
+  `text/html` — that means the SPA fallback served it, i.e. the file isn't
+  there yet or the deploy hasn't finished; wait and recheck rather than
+  re-pushing).
+- Mark the product `Shipped` in PRODUCT_QUEUE.md only once verified live,
+  then send one `PushNotification`: `"<Product> is live on
+  maybewellbooks.com"`.
 
 # Voice & templates quick reference
 
