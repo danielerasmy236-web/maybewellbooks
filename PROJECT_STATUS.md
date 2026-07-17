@@ -123,6 +123,18 @@ MAYBEWELL BOOKS/
 
 ## Hard-won lessons (read before editing the bundle again)
 
+0. **`git push` does NOT deploy the site.** The Netlify site
+   (`maybewellbooks`, site id `12dd4eba-e81c-4fa7-87d5-ad18b5d37496`) has no
+   Git integration — every production deploy so far was made manually with
+   `netlify deploy --prod` from `Website - Repos/maybewell-site-dist-v2/`
+   (the folder is CLI-linked via `.netlify/state.json`). Discovered
+   2026-07-17 when two days of pushed work (TWIW, manifestos, Teachers
+   line) never appeared on the live site and new preview images resolved to
+   the SPA's index.html (200 text/html) instead of JPEGs. After any release:
+   verify live by fetching a newly-added asset URL and checking its
+   content-type. Consider connecting the GitHub repo in Netlify to make
+   pushes deploy automatically.
+
 1. **Always rename `index-*.js` when you change it**, and update the
    `<script src>` in `index.html` to match. `/assets/*` is cached
    `must-revalidate, max-age=300` (deliberately NOT `immutable` — that bit
