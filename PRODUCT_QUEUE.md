@@ -12,13 +12,14 @@ Status values: `Pending` → `Built (awaiting review)` → `Approved` → `Shipp
 
 | Day | Product | Line | Format | Status |
 |-----|---------|------|--------|--------|
-| 1 | Wander Without a Destination | Field Notes | Template B | Pending |
+| 1 | Wander Without a Destination | Field Notes | Template B | Built (awaiting review) |
 | 2 | The Map You Draw | Field Notes | Template B, single continuous atlas | Pending |
 | 3 | 15-Minute Micro-Adventures | Field Notes | Template B, compact | Pending |
 | 4 | Questions They Never Ask You | Field Notes | Template B, two-answer format | Pending |
 | 5 | Letter to the Future | Field Notes | Template D, correspondence | Pending |
 | 6 | The Grandparents' Book | Field Notes | Template E, interview Q&A, large-print | Pending |
 | 7 | Looking Up | Field Notes | Template A, field log | Pending |
+| 8 | Machines Nobody's Built Yet | Imagine | DWYI drawing-prompt template | Pending |
 
 Remaining backlog after this batch (briefs exist from prior sessions): the
 other Field Notes products, the Teachers line follow-ups, and core catalog
@@ -153,3 +154,21 @@ Sample prompts:
 - ★★☆ Find the brightest star you can see tonight. Log where and when.
 - ★★★ Watch the sky change for 10 minutes without looking away. Log what changed.
 - ★☆☆ Find a cloud shaped like something ordinary — an animal, an object.
+
+## Day 8 — Machines Nobody's Built Yet ("Máquinas que Nadie Ha Construido")
+
+Concept: an invention-themed drawing-prompt book for the Imagine line — same
+solo-imaginer buyer as Draw What You Imagine and The Impossible Garden, third
+theme on the same pure-drawing-prompt template (no new production work).
+
+Structure: thematic sections of drawing prompts, same shape as The
+Impossible Garden — one prompt line per page, generous blank space for the
+drawing. No difficulty tiers (matches DWYI/Garden, not the Field Notes ★
+system).
+
+Sample prompts:
+- Draw a machine that only works when someone is sad.
+- Draw the machine that made the first sound anyone ever heard.
+- Draw something built to fix a problem nobody has yet.
+- Draw a machine with one job, done perfectly, forever.
+- Draw the machine you'd build if you had exactly one afternoon and no rules.

@@ -13,6 +13,7 @@ const PRODUCTS = {
   garden: { name: "The Impossible Garden", price: 500, file: "the-impossible-garden_v1.0_letter.pdf" },
   mazes: { name: "Mazes of the Lost City", price: 400, file: "mazes-of-the-lost-city_v1.0_letter.pdf" },
   twiw: { name: "The World Is Watching", price: 500, file: "the-world-is-watching_v1.0_letter.pdf" },
+  wander: { name: "Wander Without a Destination", price: 500, file: "wander-without-a-destination_v1.0_letter.pdf" },
   // For Teachers & Educators line — singles $2, weekly modules $4
   chain: { name: "Chain Story — Single Sheet", price: 200, file: "chain-story-single-sheet_v1.0_letter.pdf" },
   chainwk: { name: "Chain Story — Weekly Module", price: 400, file: "chain-story-weekly-module_v1.0_letter.pdf" },
