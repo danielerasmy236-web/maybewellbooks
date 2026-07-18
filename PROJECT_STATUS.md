@@ -76,27 +76,34 @@ most important thing to know before touching the site.**
 
 ## What's blocking a real sale right now
 
-**Lemon Squeezy store activation is pending** (submitted, waiting on their
-~2-3 business day review — as of last check, still waiting). Until that
-clears:
+**Resend is fully wired as of 2026-07-18** — done, not just "should work":
+domain `maybewellbooks.com` verified in Resend (DKIM + SPF, all records
+`verified`, region `sa-east-1`), a scoped API key
+(`maybewellbooks-netlify-production`, sending-only, restricted to this
+domain) created and set as a **secret** `RESEND_API_KEY` env var in Netlify
+(context: production), plus `ORDERS_FROM_EMAIL` set to
+`Maybewell Books <orders@maybewellbooks.com>`. Deployed and live. (An older
+API key named "Maybewell Books" from 2026-07-15 also exists in the Resend
+account but its token was never captured anywhere — harmless to ignore or
+delete later, it's not referenced by anything.) Not yet done: an actual
+end-to-end test send through `ls-webhook.js` to confirm delivery works in
+practice, not just that the config is correct.
 
-1. User needs to go to Lemon Squeezy, click "Activate your store", get
-   approved.
+**Lemon Squeezy store activation is still pending** — this is the one real
+remaining blocker, and only Dan can clear it:
+
+1. Go to Lemon Squeezy, click "Activate your store", get approved (submitted
+   a few days ago, ~2-3 business day review — check for the approval email).
 2. **Products created in test mode do NOT carry over** — once approved, use
    "Copy to Live Mode" on the product, which generates a **new Store ID and
    Variant ID** (the test-mode ones currently in Netlify env vars,
    `432241` / `93e3c734-...`, will need to be replaced).
-3. Still needed (none of these were ever shared in chat, by design — they're
-   secrets):
+3. Still needed (secrets — set directly in Netlify, never in chat):
    - `LEMONSQUEEZY_API_KEY`
    - `LEMONSQUEEZY_WEBHOOK_SECRET` (from a webhook pointed at
      `https://maybewellbooks.com/.netlify/functions/ls-webhook`, subscribed
      to `order_created`)
-   - `RESEND_API_KEY` (domain `maybewellbooks.com` is already verified in
-     Resend — confirmed working)
    - `DOWNLOAD_TOKEN_SECRET` (any random string, e.g. `openssl rand -hex 32`)
-   - All of these get set directly in **Netlify → Site configuration →
-     Environment variables** — never in chat.
 4. Full step-by-step is in
    `Website - Repos/maybewell-site-dist-v2/netlify/functions/SETUP.md`.
 5. Once configured: **the `ls-webhook.js` payload shape should be verified
