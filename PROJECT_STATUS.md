@@ -136,23 +136,36 @@ MAYBEWELL BOOKS/
 
 ## Hard-won lessons (read before editing the bundle again)
 
-0. **`git push` to `main` deploys to production immediately — as of
-   2026-07-18.** The Netlify site (`maybewellbooks`, site id
-   `12dd4eba-e81c-4fa7-87d5-ad18b5d37496`) is now Git-connected (base dir
-   `Website - Repos/maybewell-site-dist-v2`, no build command, functions
-   dir `netlify/functions`); a push is the release, with no manual step and
-   no confirmation prompt in between. There is no more safety margin
-   between "committed" and "live" — never push work-in-progress.
-   *Before 2026-07-18* the site had no Git integration at all and every
-   deploy was a manual `netlify deploy --prod` from the site folder; that
-   history is why any product-builder run still verifies a push actually
-   went live (fetch a newly-added asset URL, confirm `image/jpeg` not
-   `text/html`) instead of trusting the push alone. Also fixed 2026-07-18:
-   missing `/assets/*` now 404 (new `404.html`) instead of falling through
-   to the SPA rewrite and getting cached as HTML under the previews'
-   long-lived cache header — that SPA-fallback cache poisoning was the
-   original cause of a "previews are broken" report, compounded by the
-   site being two days stale from the pre-Git-integration gap.
+0. **GitHub → Netlify auto-deploy is connected but currently BROKEN —
+   every push-triggered build fails, verified 2026-07-18.** The Netlify
+   site (`maybewellbooks`, site id `12dd4eba-e81c-4fa7-87d5-ad18b5d37496`)
+   has GitHub linked (`base directory: Website - Repos/maybewell-site-dist-v2`,
+   provider github, webhook confirmed firing on push) — but every build
+   Netlify has attempted for a real commit has failed at the same stage:
+   `"checking build content for changes": Canceled build due to no
+   content change"`, a false positive almost certainly caused by
+   **Publish directory being left blank** while Base directory is set (a
+   known Netlify monorepo footgun). Confirmed by listing deploys via the
+   API: two consecutive real pushes (commits `5962b9f` and `a10ee19`)
+   both auto-triggered a build and both were cancelled this way, while the
+   site kept serving a day-old deploy. **Until Dan sets Publish directory
+   explicitly** (same value as Base directory) in Netlify → Site
+   configuration → Build & deploy → Build settings, and that's verified
+   with a real push, treat `git push` as NOT a deploy — it's still
+   `netlify deploy --prod` (CLI) that actually ships, same as before
+   2026-07-18. **Always verify** after any release (push or CLI) by
+   fetching a newly-added asset URL and confirming `image/jpeg`, not
+   `text/html` — never assume either path worked. If a push-triggered
+   deploy is suspected to have silently failed, check
+   `npx netlify-cli api listSiteDeploys --data '{"site_id":"12dd4eba-e81c-4fa7-87d5-ad18b5d37496","per_page":5}'`
+   for the same "no content change" error before re-pushing (re-pushing
+   alone won't fix it — it's a settings problem, not a transient one).
+   Separately fixed 2026-07-18: missing `/assets/*` now 404s (new
+   `404.html`) instead of falling through to the SPA rewrite and getting
+   cached as HTML under the previews' long-lived cache header — that
+   SPA-fallback cache poisoning was the original cause of a "previews are
+   broken" report, compounded by the site being two days stale from the
+   pre-Git-integration gap.
 
 1. **Always rename `index-*.js` when you change it**, and update the
    `<script src>` in `index.html` to match. `/assets/*` is cached

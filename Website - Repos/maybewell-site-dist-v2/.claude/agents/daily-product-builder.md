@@ -106,20 +106,35 @@ Follow the site's hard-won rules (details in PROJECT_STATUS.md):
 - Verify locally in the browser pane (dev server `static-preview`) before
   touching git — this is the last chance to catch a mistake before it's
   live, since the next step publishes immediately.
-- **`git push` to `main` now deploys to production immediately** (GitHub
-  ↔ Netlify connected 2026-07-18, auto-publish, no confirmation step).
-  Treat the commit+push as the release itself, not a checkpoint: stage only
-  the files this product touches, write a real commit message, and push
-  only once local verification above is clean. Do not push work-in-progress
-  or partial edits under any circumstance — there is no undo step after
-  this on the Netlify side (a revert would need another commit + push).
-- After pushing, confirm the deploy actually went live: fetch one of the
-  new preview URLs and check its response is `image/jpeg` (not
-  `text/html` — that means the SPA fallback served it, i.e. the file isn't
-  there yet or the deploy hasn't finished; wait and recheck rather than
-  re-pushing).
-- Mark the product `Shipped` in PRODUCT_QUEUE.md only once verified live,
-  then send one `PushNotification`: `"<Product> is live on
+- **`git push` to `main` is *supposed* to deploy to production immediately**
+  (GitHub ↔ Netlify connected 2026-07-18) — but as of 2026-07-18 this is
+  **confirmed broken**: Publish directory was left blank in Netlify's build
+  settings, and every push-triggered build so far has failed at "checking
+  build content for changes" with `Canceled build due to no content
+  change` (a false positive). Treat the commit+push as the release attempt,
+  never as a guaranteed release: stage only the files this product touches,
+  write a real commit message, and push only once local verification above
+  is clean — but do not assume it landed.
+- After pushing, **always** confirm the deploy actually went live: fetch
+  one of the new preview URLs and check its response is `image/jpeg` (not
+  `text/html`, which means the SPA fallback served it — either the deploy
+  hasn't finished yet, or it silently failed). Give it ~30–60s and recheck
+  once before concluding it failed.
+- **If it's still not live after that**, do not re-push (this specific
+  failure mode is a settings problem, not a transient one — pushing again
+  reproduces the identical error). Instead: check
+  `npx netlify-cli api listSiteDeploys --data '{"site_id":"12dd4eba-e81c-4fa7-87d5-ad18b5d37496","per_page":5}'`
+  for a `"no content change"` error on your commit. If present, this is the
+  known bug (see PROJECT_STATUS.md lesson 0) — send a `PushNotification`
+  explaining the push didn't deploy and why, and ask Dan in chat whether to
+  fall back to a manual `netlify deploy --prod` right now (this counts as
+  the same kind of go-ahead as the original ship approval — don't run it
+  unasked). If Dan has since fixed Publish directory, note that in the
+  message so this whole check can eventually be dropped once auto-deploy is
+  reliable again.
+- Mark the product `Shipped` in PRODUCT_QUEUE.md only once verified live
+  (by whichever path actually worked), then send one `PushNotification`:
+  `"<Product> is live on
   maybewellbooks.com"`.
 
 # Voice & templates quick reference
