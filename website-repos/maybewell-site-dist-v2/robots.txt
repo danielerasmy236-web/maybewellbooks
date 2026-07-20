@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
 Sitemap: https://maybewellbooks.com/sitemap.xml
-# final auto-deploy check post folder-rename
