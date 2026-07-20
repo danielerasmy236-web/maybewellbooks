@@ -13,13 +13,13 @@ Status values: `Pending` → `Built (awaiting review)` → `Approved` → `Shipp
 | Day | Product | Line | Format | Status |
 |-----|---------|------|--------|--------|
 | 1 | Wander Without a Destination | Field Notes | Template B | Shipped |
-| 2 | The Map You Draw | Field Notes | Template B, single continuous atlas | Pending |
-| 3 | 15-Minute Micro-Adventures | Field Notes | Template B, compact | Pending |
-| 4 | Questions They Never Ask You | Field Notes | Template B, two-answer format | Pending |
-| 5 | Letter to the Future | Field Notes | Template D, correspondence | Pending |
-| 6 | The Grandparents' Book | Field Notes | Template E, interview Q&A, large-print | Pending |
+| 2 | The Map You Draw | Field Notes | Template B, single continuous atlas | Shipped |
+| 3 | 15-Minute Micro-Adventures | Field Notes | Template B, compact | Shipped |
+| 4 | Questions They Never Ask You | Field Notes | Template B, two-answer format | Shipped |
+| 5 | Letter to the Future | Field Notes | Template D, correspondence | Shipped |
+| 6 | The Grandparents' Book | Field Notes | Template E, interview Q&A, large-print | Shipped |
 | 7 | Looking Up | Field Notes | Template A, field log | Pending |
-| 8 | Machines Nobody's Built Yet | Imagine | DWYI drawing-prompt template | Built (awaiting review) |
+| 8 | Machines Nobody's Built Yet | Imagine | DWYI drawing-prompt template | Shipped |
 | 9 | The Rumor Mill | Teachers | Single Sheet + Weekly Module | Pending |
 | 10 | The Object Court | Teachers | Single Sheet + Weekly Module | Pending |
 | 11 | The Prediction Vault | Teachers | Single Sheet + Weekly Module | Pending |
