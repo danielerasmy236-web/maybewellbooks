@@ -95,63 +95,45 @@ day review — check for an approval email. Once approved:
 Confirmed via Netlify API as of this writing: env vars are `ORDERS_FROM_EMAIL`
 and `RESEND_API_KEY` only — no Lemon Squeezy secrets set yet.
 
-## Deploying: GitHub is connected but auto-deploy is STILL BROKEN — verify, don't assume
+## Deploying: FIXED (2026-07-20) — push-to-deploy now works, but still verify
 
 The Netlify site (`maybewellbooks`, site id
 `12dd4eba-e81c-4fa7-87d5-ad18b5d37496`) has GitHub linked (base directory
-`website-repos/maybewell-site-dist-v2`) — but **push-to-deploy is not
-reliable**, root-caused (2026-07-20 session) but not fully fixed. Two
-separate bugs found, one fixed, one still open:
+`website-repos/maybewell-site-dist-v2`). As of 2026-07-20, `git push origin
+main` triggers a real, successful automatic deploy — confirmed twice in a
+row with genuine content changes (`aac38aa`, `25843e1`), both landing
+`state: ready` within ~1 minute of push, no manual intervention. Two bugs
+were found and fixed this session:
 
-1. **FIXED**: `build_settings.dir` (Publish directory) was `null`, and
-   since `base_rel_dir: true`, the correct value is `.` (meaning "same
-   folder as Base directory") — NOT the full path repeated (that
-   duplicates into `base/base`, which was tried and produced a hard
-   "Deploy directory ... does not exist" failure, confirmed via the
-   public deploy log at `https://app.netlify.com/projects/maybewellbooks/deploys/<id>`,
-   click into the "Deploying" step to see the actual error — the
-   top-level `error_message` from `getSiteDeploy` is often misleadingly
-   generic, e.g. always says `"Failed during stage 'building site'"`
-   even when the real failure is in the deploy step). This is now set
-   correctly (`dir: "."`) and confirmed via `getSite`.
-2. **STILL OPEN, unresolved**: even with `dir` correct, every real
-   push-triggered build still gets `Canceled build due to no content
-   change` — a genuine false positive, reproduced 3 times in a row on
-   trivial real edits to `robots.txt`. Very likely tied to the **space in
-   the base directory name** (`website-repos/...`) confusing Netlify's
-   monorepo "did anything change under this path" diff heuristic — this
-   matches publicly reported Netlify bugs with space/special-character
-   base directories. **Do not try to "fix" this by setting
-   `build_settings.build_filter`** (the "Ignore build command" UI
-   field) to force always-build (e.g. `"false"`) — tried twice in this
-   session, reproducibly: it does NOT stop the false-positive skip, and
-   it appears to make GitHub-webhook-triggered builds stop being created
-   entirely (no deploy record shows up at all, confirmed via
-   `listSiteDeploys` after 5+ minutes of waiting both times, vs. under a
-   minute normally). Reverting `build_filter` to `null` restored normal
-   (if still false-positive-prone) webhook behavior immediately both
-   times — this was not a coincidence. Setting an explicit no-op
-   `build_settings.cmd` (e.g. `"true"`) was also tried and did not help
-   either. **The only durable real fix identified but not yet applied**:
-   rename the base folder to remove the space (e.g.
-   `website-repos-maybewell-site-dist-v2`), then update Base/Publish
-   directory to match — a real structural change with meaningful blast
-   radius (repo layout, local folder path, this file's own instructions),
-   so it needs Dan's explicit go-ahead before anyone does it.
+1. **`build_settings.dir` (Publish directory) was `null`.** Since
+   `base_rel_dir: true`, the correct value is `.` (meaning "same folder as
+   Base directory") — NOT the full path repeated (that duplicates into
+   `base/base` and produces a hard "Deploy directory ... does not exist"
+   failure; the real error only shows in the public deploy log at
+   `https://app.netlify.com/projects/maybewellbooks/deploys/<id>` → click
+   the "Deploying" step — the top-level `error_message` from
+   `getSiteDeploy` is often misleadingly generic). Fixed: `dir: "."`.
+2. **The base directory name had a space in it** (`Website - Repos/...`),
+   which was confusing Netlify's monorepo "did anything change under this
+   path" diff heuristic — every real push-triggered build was
+   self-cancelling as `Canceled build due to no content change`, a false
+   positive, even on genuine edits (reproduced 3 times in a row). Fixed by
+   renaming the folder to `website-repos/maybewell-site-dist-v2` (no
+   space) at the repo root, updating every path reference in docs/config,
+   and updating Netlify's Base directory to match via the API. **Do not
+   rename this folder again or reintroduce a space in the path** — this
+   was the actual root cause, confirmed by the false-positive disappearing
+   immediately after the rename, and re-verified with `.claude/`,
+   `netlify/functions`, and all product PDFs intact under the new path.
+   (Also tried and explicitly ruled out along the way, in case anyone is
+   tempted to revisit them: setting `build_settings.build_filter` to force
+   always-build — doesn't stop the false positive and appears to silently
+   stop GitHub-webhook-triggered deploys from being created at all; and
+   setting an explicit no-op `build_settings.cmd` — no effect either.)
 
-**Net result: `git push` is still NOT a deploy** — it reliably reaches
-Netlify (webhook fires within ~1 minute when `build_filter` is left at
-its default `null`) but the build almost always self-cancels as "no
-content change" even when content genuinely changed. The only reliable
-release path remains:
-
-```bash
-cd "website-repos/maybewell-site-dist-v2"
-npx --yes netlify-cli deploy --prod
-```
-
-**Always verify** after *any* release (push or CLI) by fetching a
-newly-added asset URL and confirming `image/jpeg`, not `text/html`:
+`git push` is now a real deploy. Still, **always verify** after *any*
+release (push or CLI) by fetching a newly-added asset URL and confirming
+`image/jpeg`, not `text/html` — don't blind-trust a green status:
 
 ```bash
 curl -s -o /dev/null -w "%{content_type} %{http_code}\n" \
@@ -227,9 +209,9 @@ MAYBEWELL BOOKS/
 
 ## Hard-won lessons (read before editing the bundle again)
 
-0. **See "Deploying" section above** — GitHub auto-deploy is connected but
-   broken; CLI deploy + live verification is the only trustworthy path
-   until Dan fixes Publish directory.
+0. **See "Deploying" section above** — GitHub auto-deploy is fixed as of
+   2026-07-20; `git push` is a real deploy now, but always verify a live
+   asset after anything you actually care about.
 1. **Always rename `index-*.js` when you change it**, and update the
    `<script src>` in `index.html` to match. `/assets/*` is cached
    `must-revalidate, max-age=300` (deliberately NOT immutable).
@@ -284,19 +266,21 @@ MAYBEWELL BOOKS/
 
 ## Immediate next steps, in order
 
-1. Check whether Lemon Squeezy store activation has come through.
+1. Check whether Lemon Squeezy store activation has come through (as of
+   2026-07-20, still not — only the "application received" email from
+   2026-07-15 exists, no approval yet).
 2. If yes: follow "What's blocking a real sale" above — copy to live mode,
    set the 3 secrets in Netlify, verify the webhook payload shape, do one
    real test purchase end to end.
-3. Separately, ask Dan whether he's fixed Netlify's Publish directory
-   setting yet; if so, verify a real push actually deploys before trusting
-   push-to-deploy again (see "Deploying" section — don't take "I fixed it"
-   as proof on its own, check a live asset after the next real push).
+3. Deploying is fixed as of 2026-07-20 (see "Deploying" section) — `git
+   push` now reliably deploys. Still spot-check a live asset after any
+   push you actually care about; don't blind-trust it forever.
 4. Review whatever `daily-product-builder` has queued up as
    `Built (awaiting review)` — check `PRODUCT_QUEUE.md`'s status table
-   first thing; there may already be something waiting.
+   first thing; as of 2026-07-20 nothing is currently in that state (Days
+   7 and 9–13 are still `Pending`, not yet built).
 5. Ongoing: the two standing agents keep the queue moving on their own
    schedule. Your job when picking this project back up is mostly
    reviewing what they've already built/proposed and clearing blockers
-   like the two above — not necessarily starting new build work from
+   like Lemon Squeezy above — not necessarily starting new build work from
    scratch.
