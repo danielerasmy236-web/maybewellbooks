@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
 Sitemap: https://maybewellbooks.com/sitemap.xml
-# Netlify auto-deploy verified working 2026-07-20 (take 2, with ignore-command override)
