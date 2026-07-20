@@ -95,25 +95,55 @@ day review — check for an approval email. Once approved:
 Confirmed via Netlify API as of this writing: env vars are `ORDERS_FROM_EMAIL`
 and `RESEND_API_KEY` only — no Lemon Squeezy secrets set yet.
 
-## Deploying: GitHub is connected but auto-deploy is BROKEN — verify, don't assume
+## Deploying: GitHub is connected but auto-deploy is STILL BROKEN — verify, don't assume
 
 The Netlify site (`maybewellbooks`, site id
 `12dd4eba-e81c-4fa7-87d5-ad18b5d37496`) has GitHub linked (base directory
-`Website - Repos/maybewell-site-dist-v2`, webhook confirmed firing on every
-push) — but **every push-triggered build has failed**, confirmed as
-recently as this session, at the stage "checking build content for
-changes" with `Canceled build due to no content change` (a false
-positive). Root cause, still unfixed as of this writing: **Publish
-directory is blank** in Netlify's Build settings while Base directory is
-set — a known Netlify monorepo footgun. Confirmed via
-`npx netlify-cli api getSite --data '{"site_id":"12dd4eba-e81c-4fa7-87d5-ad18b5d37496"}'`
-→ `build_settings.dir` is `null`.
+`Website - Repos/maybewell-site-dist-v2`) — but **push-to-deploy is not
+reliable**, root-caused (2026-07-20 session) but not fully fixed. Two
+separate bugs found, one fixed, one still open:
 
-**Until Dan sets Publish directory explicitly** (same value as Base
-directory: `Website - Repos/maybewell-site-dist-v2`) in Netlify → Site
-configuration → Build & deploy → Build settings, and that's verified with
-a real push, **`git push` is NOT a deploy.** The only reliable release path
-is:
+1. **FIXED**: `build_settings.dir` (Publish directory) was `null`, and
+   since `base_rel_dir: true`, the correct value is `.` (meaning "same
+   folder as Base directory") — NOT the full path repeated (that
+   duplicates into `base/base`, which was tried and produced a hard
+   "Deploy directory ... does not exist" failure, confirmed via the
+   public deploy log at `https://app.netlify.com/projects/maybewellbooks/deploys/<id>`,
+   click into the "Deploying" step to see the actual error — the
+   top-level `error_message` from `getSiteDeploy` is often misleadingly
+   generic, e.g. always says `"Failed during stage 'building site'"`
+   even when the real failure is in the deploy step). This is now set
+   correctly (`dir: "."`) and confirmed via `getSite`.
+2. **STILL OPEN, unresolved**: even with `dir` correct, every real
+   push-triggered build still gets `Canceled build due to no content
+   change` — a genuine false positive, reproduced 3 times in a row on
+   trivial real edits to `robots.txt`. Very likely tied to the **space in
+   the base directory name** (`Website - Repos/...`) confusing Netlify's
+   monorepo "did anything change under this path" diff heuristic — this
+   matches publicly reported Netlify bugs with space/special-character
+   base directories. **Do not try to "fix" this by setting
+   `build_settings.build_filter`** (the "Ignore build command" UI
+   field) to force always-build (e.g. `"false"`) — tried twice in this
+   session, reproducibly: it does NOT stop the false-positive skip, and
+   it appears to make GitHub-webhook-triggered builds stop being created
+   entirely (no deploy record shows up at all, confirmed via
+   `listSiteDeploys` after 5+ minutes of waiting both times, vs. under a
+   minute normally). Reverting `build_filter` to `null` restored normal
+   (if still false-positive-prone) webhook behavior immediately both
+   times — this was not a coincidence. Setting an explicit no-op
+   `build_settings.cmd` (e.g. `"true"`) was also tried and did not help
+   either. **The only durable real fix identified but not yet applied**:
+   rename the base folder to remove the space (e.g.
+   `website-repos-maybewell-site-dist-v2`), then update Base/Publish
+   directory to match — a real structural change with meaningful blast
+   radius (repo layout, local folder path, this file's own instructions),
+   so it needs Dan's explicit go-ahead before anyone does it.
+
+**Net result: `git push` is still NOT a deploy** — it reliably reaches
+Netlify (webhook fires within ~1 minute when `build_filter` is left at
+its default `null`) but the build almost always self-cancels as "no
+content change" even when content genuinely changed. The only reliable
+release path remains:
 
 ```bash
 cd "Website - Repos/maybewell-site-dist-v2"
