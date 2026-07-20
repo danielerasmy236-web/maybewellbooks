@@ -12,7 +12,7 @@ An e-commerce site selling printable PDF activity books, at
 Prices $2–5 USD. Owner/operator: Dan.
 
 The site is a **pre-built, minified React SPA with no build tooling** —
-`Website - Repos/maybewell-site-dist-v2/assets/index-*.js` is the only
+`website-repos/maybewell-site-dist-v2/assets/index-*.js` is the only
 source file for the frontend (no package.json, no bundler; the hash in the
 filename changes on every edit — always check `index.html` for the current
 one, never hardcode a hash from memory). All frontend changes are surgical
@@ -82,7 +82,7 @@ day review — check for an approval email. Once approved:
      `openssl rand -hex 32`)
 3. `LEMONSQUEEZY_STORE_ID` / `LEMONSQUEEZY_VARIANT_ID` are NOT secret —
    safe to paste in chat for help setting them.
-4. Full checklist: `Website - Repos/maybewell-site-dist-v2/netlify/functions/SETUP.md`.
+4. Full checklist: `website-repos/maybewell-site-dist-v2/netlify/functions/SETUP.md`.
 5. **Before trusting it with real orders**: send a real Lemon Squeezy test
    webhook (dashboard → Webhooks → "Send test event") and check the
    Netlify function log for `ls-webhook` — the payload field names in that
@@ -99,7 +99,7 @@ and `RESEND_API_KEY` only — no Lemon Squeezy secrets set yet.
 
 The Netlify site (`maybewellbooks`, site id
 `12dd4eba-e81c-4fa7-87d5-ad18b5d37496`) has GitHub linked (base directory
-`Website - Repos/maybewell-site-dist-v2`) — but **push-to-deploy is not
+`website-repos/maybewell-site-dist-v2`) — but **push-to-deploy is not
 reliable**, root-caused (2026-07-20 session) but not fully fixed. Two
 separate bugs found, one fixed, one still open:
 
@@ -118,7 +118,7 @@ separate bugs found, one fixed, one still open:
    push-triggered build still gets `Canceled build due to no content
    change` — a genuine false positive, reproduced 3 times in a row on
    trivial real edits to `robots.txt`. Very likely tied to the **space in
-   the base directory name** (`Website - Repos/...`) confusing Netlify's
+   the base directory name** (`website-repos/...`) confusing Netlify's
    monorepo "did anything change under this path" diff heuristic — this
    matches publicly reported Netlify bugs with space/special-character
    base directories. **Do not try to "fix" this by setting
@@ -146,7 +146,7 @@ content change" even when content genuinely changed. The only reliable
 release path remains:
 
 ```bash
-cd "Website - Repos/maybewell-site-dist-v2"
+cd "website-repos/maybewell-site-dist-v2"
 npx --yes netlify-cli deploy --prod
 ```
 
@@ -170,7 +170,7 @@ npx --yes netlify-cli api listSiteDeploys \
 
 ## Two standing Claude Code agents
 
-Defined in `Website - Repos/maybewell-site-dist-v2/.claude/agents/`:
+Defined in `website-repos/maybewell-site-dist-v2/.claude/agents/`:
 
 - **`daily-product-builder`** — runs daily (scheduled cloud task, ~9am),
   builds up to 5 `Pending` rows from `PRODUCT_QUEUE.md` per run (Figma →
@@ -208,7 +208,7 @@ MAYBEWELL BOOKS/
 │   ├── catalog_manifest.json       <- status per title (published/pending/retired)
 │   ├── generators/, mw_lib/, content/  <- shared brand.py drawing helpers + per-title content
 │   └── run_next.py / run_weekly.sh <- weekly launchd job, generates one pending item for review
-└── Website - Repos/maybewell-site-dist-v2/   <- the actual deployed site
+└── website-repos/maybewell-site-dist-v2/   <- the actual deployed site
     ├── index.html                  <- loads legal/manifesto content, GSAP CDN, then the bundle
     ├── assets/index-e55cf50b.js    <- THE frontend (minified, hand-edited) — VERIFY this hash is current
     ├── assets/legal-content.js     <- Privacy/Terms/Cookies text (EN+ES)

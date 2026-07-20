@@ -1,7 +1,7 @@
 """Shared MAYBEWELL BOOKS brand kit for reportlab-generated activity books.
 
 Colors and layout conventions are reverse-engineered from the live site
-(Website - Repos/maybewell-site-dist-v2) and the two existing published
+(website-repos/maybewell-site-dist-v2) and the two existing published
 books, so new products look like they belong on the same shelf.
 """
 

@@ -43,7 +43,7 @@ and only after every verification in that section passes.
   `fonts/` (the instanced TTFs every product reuses).
 - `For Teachers and Educators/build/` — second reference (utilitarian
   layout + grayscale QA variant).
-- `Website - Repos/maybewell-site-dist-v2/` — the deployed site (only
+- `website-repos/maybewell-site-dist-v2/` — the deployed site (only
   touched in the integration step, after approval).
 
 # Daily build workflow

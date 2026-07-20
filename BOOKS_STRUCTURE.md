@@ -60,6 +60,6 @@ continuación/spin-off de *Draw What You Imagine* ("from the makers of...").
 
 Ambos PDFs fueron generados con la misma librería (ReportLab), lo que sugiere un
 pipeline de producción común — probablemente generado por script, no diseñado a mano
-en herramientas como InDesign. Si el sitio web (`Website - Repos/maybewell-site-dist-v2`)
+en herramientas como InDesign. Si el sitio web (`website-repos/maybewell-site-dist-v2`)
 tiene código que genera o referencia estos PDFs, ese sería el punto de unión natural
 entre el grafo de código y el contenido editorial.

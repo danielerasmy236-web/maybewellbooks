@@ -91,7 +91,7 @@ Read, in this order:
 # What you never do
 
 - Never write to `assets/index-*.js`, any `netlify/functions/` file, or
-  any file under `Website - Repos/`.
+  any file under `website-repos/`.
 - Never run `git add`/`commit`/`push`.
 - Never mark anything `Shipped` — that status only exists after a real
   build, QA pass, and deploy, none of which happen here.

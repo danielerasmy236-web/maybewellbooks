@@ -1,9 +1,9 @@
 .DS_Store
 
 # Old/superseded website builds — maybewell-site-dist-v2 is the source of truth
-Website - Repos/dist/
-Website - Repos/maybewell-site-dist-FIXED/
-Website - Repos/maybewell-site-dist-v2.zip
+website-repos/dist/
+website-repos/maybewell-site-dist-FIXED/
+website-repos/maybewell-site-dist-v2.zip
 
 # Local Claude Code settings (machine-specific)
 **/.claude/settings.local.json
