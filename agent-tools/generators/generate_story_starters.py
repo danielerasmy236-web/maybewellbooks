@@ -40,7 +40,7 @@ def build(output_path):
     c = brand.new_canvas(output_path, "Story Starters", "60 writing prompts: first lines, last lines, and impossible situations")
     accent = getattr(brand, ct.ACCENT)
 
-    brand.draw_cover(c, ct.TITLE, ct.SUBTITLE, "maybewellbooks.com", accent)
+    brand.draw_cover(c, ct.TITLE, ct.SUBTITLE, ct.TAGLINE, accent)
     brand.draw_intro_page(c, "Welcome, Writer", ct.INTRO_BODY, accent)
 
     page_num = 3

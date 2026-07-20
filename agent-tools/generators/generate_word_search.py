@@ -14,7 +14,7 @@ def build(output_path, seed=20260722):
     accent = getattr(brand, ct.ACCENT)
     rng = random.Random(seed)
 
-    brand.draw_cover(c, ct.TITLE, ct.SUBTITLE, "maybewellbooks.com", accent)
+    brand.draw_cover(c, ct.TITLE, ct.SUBTITLE, ct.TAGLINE, accent)
     brand.draw_intro_page(c, "Welcome to the Safari", ct.INTRO_BODY, accent)
 
     page_num = 3

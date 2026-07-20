@@ -54,7 +54,7 @@ def build(output_path, seed=20260812):
     accent = getattr(brand, ct.ACCENT)
     ink = brand.INK
 
-    brand.draw_cover(c, ct.TITLE, ct.SUBTITLE, "maybewellbooks.com", accent)
+    brand.draw_cover(c, ct.TITLE, ct.SUBTITLE, ct.TAGLINE, accent)
     brand.draw_intro_page(c, "Think It Through", ct.INTRO_BODY, accent)
 
     page_num = 3

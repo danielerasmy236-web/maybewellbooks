@@ -2,6 +2,7 @@
 
 TITLE = "Word Search\nSafari"
 SUBTITLE = "Thirty-five themed word hunts across savannas, reefs, and rainforests"
+TAGLINE = "something's always hiding."
 ACCENT = "SAGE"
 
 INTRO_BODY = [

@@ -2,6 +2,7 @@
 
 TITLE = "Space\nSTEM Pack"
 SUBTITLE = "Twelve hands-on projects for future astronomers and engineers"
+TAGLINE = "no kit required."
 ACCENT = "SLATE"
 
 INTRO_BODY = [

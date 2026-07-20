@@ -30,7 +30,7 @@ def build(output_path):
     c = brand.new_canvas(output_path, "Paper Games for Road Trips", "18 two-player paper-and-pencil games")
     accent = getattr(brand, ct.ACCENT)
 
-    brand.draw_cover(c, ct.TITLE, ct.SUBTITLE, "maybewellbooks.com", accent)
+    brand.draw_cover(c, ct.TITLE, ct.SUBTITLE, ct.TAGLINE, accent)
     brand.draw_intro_page(c, "Buckle Up", ct.INTRO_BODY, accent)
 
     page_num = 3

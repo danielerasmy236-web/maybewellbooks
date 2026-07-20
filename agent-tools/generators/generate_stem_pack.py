@@ -183,7 +183,7 @@ def build(output_path):
     c = brand.new_canvas(output_path, "Space STEM Pack", "12 hands-on space science and math projects")
     accent = getattr(brand, ct.ACCENT)
 
-    brand.draw_cover(c, ct.TITLE, ct.SUBTITLE, "maybewellbooks.com", accent)
+    brand.draw_cover(c, ct.TITLE, ct.SUBTITLE, ct.TAGLINE, accent)
     brand.draw_intro_page(c, "Mission Briefing", ct.INTRO_BODY, accent)
 
     page_num = 3

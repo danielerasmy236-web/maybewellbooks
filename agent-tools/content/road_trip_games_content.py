@@ -2,6 +2,7 @@
 
 TITLE = "Paper Games\nfor Road Trips"
 SUBTITLE = "Eighteen two-player games that only need a pencil and a lap"
+TAGLINE = "shotgun picks first."
 ACCENT = "TEAL"
 
 INTRO_BODY = [

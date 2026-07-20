@@ -7,52 +7,80 @@
       "category": "puzzles",
       "status": "published",
       "output": "Mazes of the Lost City/mazes-of-the-lost-city_v1.0_letter.pdf",
-      "site_path": "Website - Repos/maybewell-site-dist-v2/downloads/mazes-of-the-lost-city_v1.0_letter.pdf",
+      "site_path": "Website - Repos/maybewell-site-dist-v2/netlify/functions/_assets/mazes-of-the-lost-city_v1.0_letter.pdf",
       "page_count": 61,
       "generated_at": "2026-07-15T12:47:31",
-      "published_at": "2026-07-15T13:03:00"
+      "published_at": "2026-07-20T00:00:00",
+      "note": "Republished 2026-07-20: fixed a duplicate 'maybewellbooks.com' cover bug (draw_cover's tagline param was passed the site URL instead of a real tagline) and added TAGLINE = 'no map needed.' to mazes_content.py."
     },
     {
       "id": "stem",
       "generator": "generate_stem_pack",
       "title": "Space STEM Pack",
       "category": "stem",
-      "status": "pending"
+      "status": "published",
+      "output": "Space STEM Pack/space-stem-pack_v1.0_letter.pdf",
+      "site_path": "Website - Repos/maybewell-site-dist-v2/netlify/functions/_assets/space-stem-pack_v1.0_letter.pdf",
+      "page_count": 16,
+      "generated_at": "2026-07-20T00:00:00",
+      "published_at": "2026-07-20T00:00:00",
+      "note": "Client catalog placeholder claimed 62 pages; corrected to the real count (16) before publishing. Also fixed the same cover tagline bug as mazes."
     },
     {
       "id": "story",
       "generator": "generate_story_starters",
       "title": "Story Starters",
       "category": "writing",
-      "status": "pending"
+      "status": "published",
+      "output": "Story Starters/story-starters_v1.0_letter.pdf",
+      "site_path": "Website - Repos/maybewell-site-dist-v2/netlify/functions/_assets/story-starters_v1.0_letter.pdf",
+      "page_count": 72,
+      "generated_at": "2026-07-20T00:00:00",
+      "published_at": "2026-07-20T00:00:00"
     },
     {
       "id": "autumn",
       "generator": "generate_autumn_book",
       "title": "The Autumn Book",
       "category": "seasonal",
-      "status": "pending"
+      "status": "published",
+      "output": "The Autumn Book/the-autumn-book_v1.0_letter.pdf",
+      "site_path": "Website - Repos/maybewell-site-dist-v2/netlify/functions/_assets/the-autumn-book_v1.0_letter.pdf",
+      "page_count": 36,
+      "generated_at": "2026-07-20T00:00:00",
+      "published_at": "2026-07-20T00:00:00"
     },
     {
       "id": "roadtrip",
       "generator": "generate_road_trip_games",
       "title": "Paper Games for Road Trips",
       "category": "games",
-      "status": "pending"
+      "status": "retired",
+      "note": "Per PRODUCT_QUEUE.md resolved decisions: merged into a future Field Notes 'Road Trip Games' product (Template H). Do not generate/publish under this old id. Cover tagline bug fixed anyway for hygiene, but not built or shipped 2026-07-20."
     },
     {
       "id": "logic",
       "generator": "generate_logic_lab",
       "title": "Little Logic Lab",
       "category": "puzzles",
-      "status": "pending"
+      "status": "published",
+      "output": "Little Logic Lab/little-logic-lab_v1.0_letter.pdf",
+      "site_path": "Website - Repos/maybewell-site-dist-v2/netlify/functions/_assets/little-logic-lab_v1.0_letter.pdf",
+      "page_count": 48,
+      "generated_at": "2026-07-20T00:00:00",
+      "published_at": "2026-07-20T00:00:00"
     },
     {
       "id": "words",
       "generator": "generate_word_search",
       "title": "Word Search Safari",
       "category": "puzzles",
-      "status": "pending"
+      "status": "published",
+      "output": "Word Search Safari/word-search-safari_v1.0_letter.pdf",
+      "site_path": "Website - Repos/maybewell-site-dist-v2/netlify/functions/_assets/word-search-safari_v1.0_letter.pdf",
+      "page_count": 47,
+      "generated_at": "2026-07-20T00:00:00",
+      "published_at": "2026-07-20T00:00:00"
     }
   ]
 }

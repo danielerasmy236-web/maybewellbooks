@@ -2,6 +2,7 @@
 
 TITLE = "The\nAutumn Book"
 SUBTITLE = "Leaf rubbings, harvest counting, and a scarecrow to build"
+TAGLINE = "made for slow afternoons."
 ACCENT = "CORAL"
 
 INTRO_BODY = [

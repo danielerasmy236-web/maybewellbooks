@@ -13,7 +13,7 @@ def build(output_path, seed=20260715):
     c = brand.new_canvas(output_path, "Mazes of the Lost City", "42 hand-drawn mazes, jungle-city themed puzzle book")
     accent = getattr(brand, ct.ACCENT)
 
-    brand.draw_cover(c, ct.TITLE, ct.SUBTITLE, "maybewellbooks.com", accent)
+    brand.draw_cover(c, ct.TITLE, ct.SUBTITLE, ct.TAGLINE, accent)
 
     brand.draw_intro_page(c, "Welcome to the Lost City", ct.INTRO_BODY, accent)
 

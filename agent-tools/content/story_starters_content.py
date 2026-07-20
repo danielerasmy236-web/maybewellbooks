@@ -2,6 +2,7 @@
 
 TITLE = "Story\nStarters"
 SUBTITLE = "Sixty first lines, last lines, and impossible situations"
+TAGLINE = "the middle is yours."
 ACCENT = "PLUM"
 
 INTRO_BODY = [

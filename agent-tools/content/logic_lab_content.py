@@ -2,6 +2,7 @@
 
 TITLE = "Little\nLogic Lab"
 SUBTITLE = "Grid puzzles, deduction cases, and pattern riddles"
+TAGLINE = "no luck required."
 ACCENT = "VIOLET"
 
 INTRO_BODY = [

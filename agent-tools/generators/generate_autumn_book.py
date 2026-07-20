@@ -208,7 +208,7 @@ def build(output_path, seed=20260805):
     c = brand.new_canvas(output_path, "The Autumn Book", "28 autumn activities for ages 5-8")
     accent = getattr(brand, ct.ACCENT)
 
-    brand.draw_cover(c, ct.TITLE, ct.SUBTITLE, "maybewellbooks.com", accent)
+    brand.draw_cover(c, ct.TITLE, ct.SUBTITLE, ct.TAGLINE, accent)
     brand.draw_intro_page(c, "One Cozy Season", ct.INTRO_BODY, accent)
 
     page_num = 3

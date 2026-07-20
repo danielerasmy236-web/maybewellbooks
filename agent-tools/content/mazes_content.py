@@ -2,6 +2,7 @@
 
 TITLE = "Mazes of the\nLost City"
 SUBTITLE = "Forty-two hand-drawn mazes that grow from friendly to fiendish"
+TAGLINE = "no map needed."
 ACCENT = "TEAL"
 
 INTRO_BODY = [
