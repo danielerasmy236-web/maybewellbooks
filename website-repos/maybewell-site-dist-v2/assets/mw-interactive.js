@@ -146,17 +146,26 @@
       "background:repeating-linear-gradient(to right,#FDFAF4 0 1.5px,#DFD7C9 1.5px 2.5px);" +
       "transform:translateX(calc(var(--w) - var(--d)/2 - 3px)) rotateY(90deg) translateX(calc(var(--d)/2))}" +
     // cover interior rescaled for the 120px shelf book (the bundle sizes these
-    // for full-size product covers). Title size is finished by fitLibraryCovers().
+    // for full-size product covers). Title size is finished by fitSmallCovers().
     ".mw-root .mw-librow .mw-cover-frame{gap:5px!important;padding:9% 8%!important}" +
     // NEVER break mid-word (that reads worse than overflow: "Grandpar-ents'").
-    // Lines break at spaces/hyphens only; fitLibraryCovers() shrinks the size
+    // Lines break at spaces/hyphens only; fitSmallCovers() shrinks the size
     // until the longest whole word fits. .mwi-break is the last-resort escape
     // hatch it adds for a pathological single long word at the minimum size.
-    ".mw-root .mw-librow .mw-cover-title{font-size:12px!important;line-height:1.14!important;overflow-wrap:normal;hyphens:manual;max-width:100%}" +
-    ".mw-root .mw-librow .mw-cover-title.mwi-break{overflow-wrap:anywhere}" +
+    ".mw-root .mw-librow .mw-cover-title,.mw-root .mw-cartrow .mw-cover-title{font-size:12px!important;line-height:1.14!important;overflow-wrap:normal;hyphens:manual;max-width:100%}" +
+    ".mw-root .mw-librow .mw-cover-title.mwi-break,.mw-root .mw-cartrow .mw-cover-title.mwi-break{overflow-wrap:anywhere}" +
     ".mw-root .mw-librow .mw-cover-brand,.mw-root .mw-librow .mw-cover-cat{font-size:5.5px!important;letter-spacing:1.1px!important}" +
     ".mw-root .mw-librow .mw-cover-rule{width:22px!important;height:1.5px!important}" +
     ".mw-root .mw-librow .mw-cover-frame>svg{width:11px!important;height:11px!important}" +
+    // The cart's thumbnail (56px — less than half the shelf book) has no
+    // room for the brand watermark / category label / star at any legible
+    // size, so those are hidden rather than shrunk to unreadable — same
+    // pattern any e-commerce cart line-item thumbnail uses (image + border,
+    // no repeated label text). Only the title (auto-fit) and accent border
+    // survive at this size.
+    ".mw-root .mw-cartrow .mw-cover{padding:7%!important}" +
+    ".mw-root .mw-cartrow .mw-cover-frame{gap:2px!important;padding:8% 5%!important}" +
+    ".mw-root .mw-cartrow .mw-cover-brand,.mw-root .mw-cartrow .mw-cover-cat,.mw-root .mw-cartrow .mw-cover-frame>svg,.mw-root .mw-cartrow .mw-cover-rule{display:none!important}" +
     ".mw-root .mw-libinfo{flex:none!important;display:flex;flex-direction:column;align-items:center;gap:2px;max-width:150px;margin-top:24px}" +
     ".mw-root .mw-libinfo .mw-cardtitle{font-size:13.5px!important;line-height:1.25;text-align:center}" +
     ".mw-root .mw-libinfo .mw-dim{font-size:11px!important;opacity:.6}" +
@@ -412,19 +421,23 @@
 
   // -------------------------------------------- hero invitation (mounts
   // into the .mw-hero-r column the bundle now renders empty)
-  // ------------------------------------------- auto-fit library cover titles
+  // --------------------------------------------- auto-fit small cover titles
   // The bundle hardcodes fontSize:19px inline on .mw-cover-title (sized for
-  // full-page product covers). On a 120px shelf book that overflows both ways:
-  // horizontally on unbreakable words ("Grandparents'"), vertically on long
-  // titles ("Build Without Words — Weekly Module"). Rather than pick one small
-  // size (which would shrink short titles needlessly), measure each book and
-  // step the size down until it fits both axes — so any future title fits too.
-  // Inline + "important" is required: it must beat both React's inline size and
-  // the stylesheet fallback above.
+  // full-page product covers). Any SMALL rendering of that same cover
+  // overflows: the library's 120px shelf book (both ways — horizontally on
+  // unbreakable words like "Grandparents'", vertically on long titles like
+  // "Build Without Words — Weekly Module") and the cart's 56px line-item
+  // thumbnail (worse — spills the title across the whole cart row, see the
+  // bug report this was fixed from). Rather than pick one small size (which
+  // would shrink short titles needlessly, or still overflow the smallest
+  // context), measure each cover and step the size down until it fits both
+  // axes — so any future title, at any small size, fits too. Inline +
+  // "important" is required: it must beat both React's inline size and the
+  // stylesheet fallback above.
   var FIT_MAX = 15, FIT_MIN = 8, FIT_STEP = 0.5;
 
-  function fitLibraryCovers() {
-    var frames = document.querySelectorAll(".mw-librow .mw-cover-frame");
+  function fitSmallCovers() {
+    var frames = document.querySelectorAll(".mw-librow .mw-cover-frame, .mw-cartrow .mw-cover-frame");
     for (var i = 0; i < frames.length; i++) {
       var frame = frames[i];
       var title = frame.querySelector(".mw-cover-title");
@@ -543,13 +556,13 @@
       cookieRenderedLang = null;
     }
     renderHeroCard();     // internally guarded, only mutates when needed
-    fitLibraryCovers();   // no-op unless the library view is on screen
+    fitSmallCovers();     // no-op unless a library shelf or cart row is on screen
     renderCookieBanner(); // internally guarded, only mutates when needed
   }
-  // Only childList/characterData — NOT attributes, so fitLibraryCovers()
+  // Only childList/characterData — NOT attributes, so fitSmallCovers()
   // writing inline styles can never retrigger this observer.
   var mo = new MutationObserver(function () { refreshAll(); });
-  window.addEventListener("resize", fitLibraryCovers);
+  window.addEventListener("resize", fitSmallCovers);
 
   function boot() {
     var root = document.getElementById("root");
