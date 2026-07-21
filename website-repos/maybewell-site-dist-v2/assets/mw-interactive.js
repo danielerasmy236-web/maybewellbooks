@@ -113,8 +113,24 @@
     ".mw-root .mw-libgrid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));grid-auto-rows:262px;align-items:start;justify-items:center;gap:0!important;margin-top:26px;padding:8px 14px 0;" +
       "background:repeating-linear-gradient(to bottom,transparent 0,transparent 170px," + WOOD + " 170px," + WOOD + " 179px," + WOOD_D + " 179px," + WOOD_D + " 184px,transparent 184px,transparent 262px)}" +
     ".mw-root .mw-librow{flex-direction:column!important;align-items:center;justify-content:flex-start;gap:0;background:transparent!important;border:none!important;box-shadow:none!important;padding:0 8px!important;height:100%;text-align:center;transition:transform .16s ease}" +
-    ".mw-root .mw-librow:hover{transform:translateY(-6px)}" +
-    ".mw-root .mw-librow>div:first-child{width:120px!important;filter:drop-shadow(2px 6px 4px rgba(32,48,58,.34))}" +
+    ".mw-root .mw-librow:hover{transform:translateY(-6px);z-index:5}" +
+    // --- 3D book (ported from a React/Tailwind <Book> component to vanilla
+    //     CSS: this site has no build tooling). The bundle's .mw-cover is the
+    //     front face; ::before is the back cover pushed back by --d, ::after
+    //     is the page block rotated 90deg on the right edge, and the spine
+    //     shading is a gradient in .mw-cover's 9% padding. Library only.
+    //     NOTE: no `filter` on the 3D ancestors — it flattens preserve-3d.
+    ".mw-root .mw-librow>div:first-child{width:120px!important;perspective:900px;filter:none!important}" +
+    ".mw-root .mw-librow .mw-cover{--d:13px;--w:120px;position:relative;transform-style:preserve-3d;" +
+      "transition:transform .5s cubic-bezier(.2,.8,.25,1);border-radius:2px 5px 5px 2px;" +
+      "box-shadow:0 10px 16px -9px rgba(32,48,58,.5);" +
+      "background-image:linear-gradient(to right,rgba(32,48,58,.22) 0,rgba(32,48,58,.12) 4.5%,rgba(32,48,58,.05) 7%,rgba(255,255,255,.4) 8.4%,rgba(255,255,255,0) 10%)!important}" +
+    ".mw-root .mw-librow:hover .mw-cover{transform:rotateY(-20deg) scale(1.055) translateX(-6px)}" +
+    ".mw-root .mw-librow .mw-cover::before{content:\"\";position:absolute;inset:0;background:#E6DDCE;" +
+      "border-radius:2px 5px 5px 2px;box-shadow:0 0 0 1px rgba(32,48,58,.16);transform:translateZ(calc(-1*var(--d)))}" +
+    ".mw-root .mw-librow .mw-cover::after{content:\"\";position:absolute;top:3px;left:0;width:calc(var(--d) - 2px);height:calc(100% - 6px);" +
+      "background:repeating-linear-gradient(to right,#FDFAF4 0 1.5px,#DFD7C9 1.5px 2.5px);" +
+      "transform:translateX(calc(var(--w) - var(--d)/2 - 3px)) rotateY(90deg) translateX(calc(var(--d)/2))}" +
     ".mw-root .mw-libinfo{flex:none!important;display:flex;flex-direction:column;align-items:center;gap:2px;max-width:150px;margin-top:24px}" +
     ".mw-root .mw-libinfo .mw-cardtitle{font-size:13.5px!important;line-height:1.25;text-align:center}" +
     ".mw-root .mw-libinfo .mw-dim{font-size:11px!important;opacity:.6}" +
@@ -122,7 +138,7 @@
     ".mw-root .mw-librow:hover .mw-btn-sm,.mw-root .mw-librow:focus-within .mw-btn-sm{opacity:1;transform:none}" +
     // empty state as an empty wooden shelf (copy already says "on the shelf")
     ".mw-root .mw-empty{border:none!important;background:repeating-linear-gradient(to bottom,transparent 0,transparent 82px," + WOOD + " 82px," + WOOD + " 91px," + WOOD_D + " 91px," + WOOD_D + " 96px,transparent 96px,transparent 130px);min-height:130px;padding-top:24px!important}" +
-    "@media(max-width:560px){.mw-root .mw-libgrid{grid-template-columns:repeat(auto-fill,minmax(116px,1fr));grid-auto-rows:222px;background:repeating-linear-gradient(to bottom,transparent 0,transparent 138px," + WOOD + " 138px," + WOOD + " 146px," + WOOD_D + " 146px," + WOOD_D + " 150px,transparent 150px,transparent 222px)}.mw-root .mw-librow>div:first-child{width:96px!important}.mw-root .mw-libinfo{margin-top:20px}}" +
+    "@media(max-width:560px){.mw-root .mw-libgrid{grid-template-columns:repeat(auto-fill,minmax(116px,1fr));grid-auto-rows:222px;background:repeating-linear-gradient(to bottom,transparent 0,transparent 138px," + WOOD + " 138px," + WOOD + " 146px," + WOOD_D + " 146px," + WOOD_D + " 150px,transparent 150px,transparent 222px)}.mw-root .mw-librow>div:first-child{width:96px!important}.mw-root .mw-librow .mw-cover{--w:96px;--d:10px}.mw-root .mw-libinfo{margin-top:20px}}" +
     "@media print{.mwi-fab,.mwi-bar{display:none!important}}";
 
   var styleEl = document.createElement("style");
