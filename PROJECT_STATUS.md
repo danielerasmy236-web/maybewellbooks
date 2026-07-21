@@ -23,7 +23,7 @@ know before touching the site**, and it has burned people before — see
 
 ## What's live right now
 
-**21 real, purchasable products**, in four lines:
+**22 real, purchasable products**, in four lines:
 
 - **Imagine** (solo drawing prompts, $5 each): Draw What You Imagine (94pp),
   The Impossible Garden (73pp), Machines Nobody's Built Yet (72pp).
@@ -32,7 +32,8 @@ know before touching the site**, and it has burned people before — see
   15-Minute Micro-Adventures (84pp), Questions They Never Ask You (58pp,
   two-answer conversation manual), The Grandparents' Book (52pp,
   large-print interview book), The Map You Draw (40pp, continuous personal
-  atlas), Letter to the Future (22pp, correspondence/sealed-envelope book).
+  atlas), Letter to the Future (22pp, correspondence/sealed-envelope book),
+  Road Trip Games (22pp, $4, 18 two-player pencil games + scorecard).
 - **Puzzles / STEM / Writing / Seasonal** (the original "PDF-factory"
   catalog, $3–4): Mazes of the Lost City (61pp), Little Logic Lab (48pp),
   Space STEM Pack (16pp — genuinely short but complete, 12 real projects),
@@ -52,11 +53,13 @@ product buy CTAs), Privacy/Terms/Cookies (EN+ES, not lawyer-reviewed), a
 clickable/expandable lightbox on every product's preview images, and a
 hand-drawn nav-underline hover animation (GSAP).
 
-**Not yet available on the site**: Paper Games for Road Trips — a generator
-exists but was deliberately NOT built. It's retired/merged into a future
-Field Notes "Road Trip Games" product per a resolved decision in
-`PRODUCT_QUEUE.md`. Don't build it under the old `roadtrip` id without
-re-checking that decision first.
+**Road Trip Games shipped 2026-07-20** (id `tripgames`) — the resolved
+decision in `PRODUCT_QUEUE.md` to merge the old "Paper Games for Road
+Trips" (id `roadtrip`, never built/shipped) into a single Field Notes
+product is now fully implemented. The old `roadtrip` id/placeholder no
+longer appears anywhere on the site; its content/generator files remain in
+`agent-tools/` untouched as a historical record only — never build or ship
+under that old id.
 
 ## What's blocking a real sale right now
 
@@ -169,13 +172,13 @@ Both notify via the built-in `PushNotification` tool (reaches Dan's phone
 via Claude Code's Remote Control) — no Telegram, no external service.
 
 **Current queue state** (`PRODUCT_QUEUE.md` at repo root): Days 1–6 and 8
-are `Shipped`. **Day 7 (Looking Up, Field Notes field-log) and Days 9–13
-(five new Teachers-line ideas from product-brainstormer: The Rumor Mill,
-The Object Court, The Prediction Vault, The One-Minute Museum, The
-Two-Minute Expedition) are still `Pending`** — not built yet. Resolved
-decisions in that file (Road Trip Games merged into Field Notes; Postcards
-from Planets Nobody Found = Option A pure-drawing) are settled, don't
-relitigate them.
+are `Shipped`, and Road Trip Games (the merged-decision item, no day
+number) shipped 2026-07-20. **Day 7 (Looking Up, Field Notes field-log) and
+Days 9–13 (five new Teachers-line ideas from product-brainstormer: The
+Rumor Mill, The Object Court, The Prediction Vault, The One-Minute Museum,
+The Two-Minute Expedition) are still `Pending`** — not built yet. The
+remaining resolved decision in that file (Postcards from Planets Nobody
+Found = Option A pure-drawing) is settled, don't relitigate it.
 
 ## Key files
 

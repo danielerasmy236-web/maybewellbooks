@@ -57,7 +57,20 @@
       "title": "Paper Games for Road Trips",
       "category": "games",
       "status": "retired",
-      "note": "Per PRODUCT_QUEUE.md resolved decisions: merged into a future Field Notes 'Road Trip Games' product (Template H). Do not generate/publish under this old id. Cover tagline bug fixed anyway for hygiene, but not built or shipped 2026-07-20."
+      "note": "Superseded 2026-07-20 by 'tripgames' (Road Trip Games, Field Notes line) per PRODUCT_QUEUE.md's resolved decision. Content/generator files kept untouched as a historical record; this id was never published or purchasable."
+    },
+    {
+      "id": "tripgames",
+      "generator": "generate_trip_games",
+      "title": "Road Trip Games",
+      "category": "field-notes",
+      "status": "published",
+      "output": "Road Trip Games/road-trip-games_v1.0_letter.pdf",
+      "site_path": "website-repos/maybewell-site-dist-v2/netlify/functions/_assets/road-trip-games_v1.0_letter.pdf",
+      "page_count": 22,
+      "generated_at": "2026-07-20T00:00:00",
+      "published_at": "2026-07-20T00:00:00",
+      "note": "Replaces the retired 'roadtrip' id per PRODUCT_QUEUE.md's resolved decision (Template H — game rules + scorecard). Same 18 games + scorecard content, repositioned as a Field Notes product with a real, verified page count (22, not the old placeholder's guessed 36). Dan approved at $4.00 before publishing."
     },
     {
       "id": "logic",

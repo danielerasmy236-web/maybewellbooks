@@ -25,6 +25,7 @@ Status values: `Pending` → `Built (awaiting review)` → `Approved` → `Shipp
 | 11 | The Prediction Vault | Teachers | Single Sheet + Weekly Module | Pending |
 | 12 | The One-Minute Museum | Teachers | Single Sheet + Weekly Module | Pending |
 | 13 | The Two-Minute Expedition | Teachers | Single Sheet + Weekly Module | Pending |
+| — | Road Trip Games | Field Notes | Template H, game rules + scorecard | Shipped |
 
 Remaining backlog after this batch (briefs exist from prior sessions): the
 other Field Notes products, the Teachers line follow-ups, and core catalog
@@ -34,7 +35,9 @@ items (Mazes/Word Search/Story Starters generators in `agent-tools/`).
 
 - **Road Trip Games**: one product only, under Field Notes (Template H —
   game rules + scorecard). The old catalog's "Paper Games for Road Trips"
-  is retired/merged into it — do not build both.
+  is retired/merged into it — do not build both. **Built and shipped
+  2026-07-20** (id `tripgames`, $4.00, 22pp) — this decision is now fully
+  implemented, nothing left to do here.
 - **Postcards from Planets Nobody Found**: build as Option A — pure drawing
   prompts, same pipeline/buyer as the Imagine line (not the STEM hybrid).
   A STEM "Vol. 2" may be revisited later.

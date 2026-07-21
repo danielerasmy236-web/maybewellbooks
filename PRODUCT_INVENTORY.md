@@ -8,9 +8,9 @@ this file is a snapshot of it, dated 2026-07-20). Paths are relative to
 
 **How to use this for Lemon Squeezy:** for each row, download the PDF at the
 given path and upload it as that product's file when you create it in Lemon
-Squeezy, using the same name and price. All 21 currently sell through the
+Squeezy, using the same name and price. All 22 currently sell through the
 single "pay what you want" checkout variant already wired in
-`create-checkout.js` — you likely don't need 21 separate Lemon Squeezy
+`create-checkout.js` — you likely don't need 22 separate Lemon Squeezy
 products/variants unless you want per-title analytics; ask if you want help
 deciding which model fits.
 
@@ -33,6 +33,7 @@ deciding which model fits.
 | The Grandparents' Book (large-print) | $4.00 | 52 | `The Grandparents' Book/the-grandparents-book_v1.0_letter.pdf` |
 | The Map You Draw | $4.00 | 40 | `The Map You Draw/the-map-you-draw_v1.0_letter.pdf` |
 | Letter to the Future | $3.00 | 22 | `Letter to the Future/letter-to-the-future_v1.0_letter.pdf` |
+| Road Trip Games | $4.00 | 22 | `Road Trip Games/road-trip-games_v1.0_letter.pdf` |
 
 ## Puzzles, STEM, Writing & Seasonal — PDF-factory catalog
 
@@ -68,7 +69,7 @@ $4 Weekly Module.
 | Build Without Words — Single Sheet | $2.00 | 3 | `For Teachers and Educators/build-without-words-single-sheet_v1.0_letter.pdf` |
 | Build Without Words — Weekly Module | $4.00 | 7 | `For Teachers and Educators/build-without-words-weekly-module_v1.0_letter.pdf` |
 
-**Total: 21 real, finished products — all live and purchasable on
+**Total: 22 real, finished products — all live and purchasable on
 maybewellbooks.com today** (pending only Lemon Squeezy activation to
 actually process payment; see PROJECT_STATUS.md).
 
@@ -76,12 +77,11 @@ actually process payment; see PROJECT_STATUS.md).
 
 ## Not built — do not list in Lemon Squeezy
 
-**Paper Games for Road Trips** (id `roadtrip`) — per `PRODUCT_QUEUE.md`'s
-resolved decisions, this old catalog placeholder is retired/merged into a
-future Field Notes "Road Trip Games" product (Template H) instead of
-shipping under its own id. Its generator's cover-tagline bug was fixed for
-hygiene (see below) but it was deliberately **not** generated or published
-2026-07-20. Still shows "Coming soon" on the site.
+**Paper Games for Road Trips** (old id `roadtrip`) — retired per
+`PRODUCT_QUEUE.md`'s resolved decision, merged into the new Field Notes
+**Road Trip Games** product (id `tripgames`, Template H — game rules +
+scorecard), published 2026-07-20. The old id/placeholder no longer appears
+anywhere on the site; do not reuse it.
 
 Also not yet built (approved concepts in `PRODUCT_QUEUE.md`, no PDF yet):
 Looking Up (Field Notes), and five new Teachers-line ideas — The Rumor Mill,
