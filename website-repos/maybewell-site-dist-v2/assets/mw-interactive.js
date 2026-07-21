@@ -1,4 +1,4 @@
-/* Maybewell Books — interactive layer ("Margins mode" + the shop star).
+/* Maybewell Books — interactive layer ("Margins mode").
  *
  * Self-contained vanilla script, loaded as a plain deferred script AFTER the
  * React bundle (see index.html). It never reaches into React internals:
@@ -6,8 +6,6 @@
  *  - The hero invitation mounts into .mw-hero-r, which the bundle renders
  *    EMPTY (the old hero drawing board was removed and its call site
  *    replaced with null), so React never manages children there.
- *  - The dot-to-dot star is a body-appended overlay positioned next to the
- *    "All books" heading — no DOM insertion inside React-managed lists.
  *
  * All prompts below are real prompts from the printed books, with their
  * real page numbers (verified against the shipped PDFs via PyMuPDF).
@@ -56,8 +54,6 @@
       print: "Print your page",
       done: "Done",
       print_footer: "less scrolling, more creating.",
-      star_hint: "connect the dots",
-      star_done: "the Maybewell star — made by you",
     },
     es: {
       fab: "Dibuja en esta página",
@@ -73,8 +69,6 @@
       print: "Imprime tu página",
       done: "Listo",
       print_footer: "menos scroll, más crear.",
-      star_hint: "une los puntos",
-      star_done: "la estrella de Maybewell — hecha por ti",
     },
   };
 
@@ -110,13 +104,7 @@
     ".mwi-hero p{font-size:14px;color:" + INK + ";line-height:1.5;margin:0 0 16px}" +
     ".mwi-hero button{background:" + OCHRE + ";border:2px solid " + INK + ";border-radius:999px;padding:9px 18px;font-weight:800;font-size:14px;color:" + INK + ";cursor:pointer;box-shadow:2px 2px 0 rgba(32,48,58,.3)}" +
     ".mwi-hero button:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(32,48,58,.3)}" +
-    ".mwi-star{position:absolute;z-index:900;display:none;pointer-events:none}" +
-    ".mwi-star.on{display:block}" +
-    ".mwi-star circle.dot{pointer-events:auto}" +
-    ".mwi-star .cap{font-size:11px;font-style:italic;text-align:center;color:" + INK + ";opacity:.8;margin-top:2px}" +
-    ".mwi-star circle.dot{cursor:pointer}" +
-    "@media(max-width:900px){.mwi-star{display:none!important}}" +
-    "@media print{.mwi-fab,.mwi-bar,.mwi-star{display:none!important}}";
+    "@media print{.mwi-fab,.mwi-bar{display:none!important}}";
 
   var styleEl = document.createElement("style");
   styleEl.id = "mwi-css";
@@ -376,97 +364,6 @@
     card.appendChild(k); card.appendChild(h); card.appendChild(p); card.appendChild(b);
   }
 
-  // ------------------------------------------------- dot-to-dot star at
-  // the "All books" heading (a body-appended overlay, repositioned live)
-  var star = document.createElement("div");
-  star.className = "mwi-star";
-  document.body.appendChild(star);
-  var starState = { next: 1, done: false };
-  var STAR_N = 10;
-
-  function starPoints(size) {
-    var pts = [];
-    var cx = size / 2, cy = size / 2;
-    for (var i = 0; i < STAR_N; i++) {
-      var ang = -Math.PI / 2 + i * Math.PI / 5;
-      var r = (i % 2 === 0) ? size * 0.46 : size * 0.19;
-      pts.push([cx + r * Math.cos(ang), cy + r * Math.sin(ang)]);
-    }
-    return pts;
-  }
-
-  function renderStar() {
-    var size = 120;
-    var pts = starPoints(size);
-    var t = T();
-    var svgLines = "";
-    for (var i = 1; i < starState.next; i++) {
-      var a = pts[i - 1], b2 = pts[i % STAR_N];
-      svgLines += '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b2[0] + '" y2="' + b2[1] + '" stroke="' + INK + '" stroke-width="2" stroke-linecap="round"/>';
-    }
-    var fill = "";
-    if (starState.done) {
-      var d = pts.map(function (p, i) { return (i ? "L" : "M") + p[0] + " " + p[1]; }).join("") + "Z";
-      fill = '<path d="' + d + '" fill="' + OCHRE + '" opacity="0.85"/>';
-    }
-    var dots = "";
-    if (!starState.done) {
-      for (var j = 0; j < STAR_N; j++) {
-        var p2 = pts[j];
-        var isNext = (j === (starState.next - 1) % STAR_N && starState.next <= STAR_N);
-        dots += '<circle class="dot" data-i="' + (j + 1) + '" cx="' + p2[0] + '" cy="' + p2[1] + '" r="6" fill="' + (j + 1 < starState.next ? INK : PUTTY) + '" stroke="' + INK + '" stroke-width="1.6"/>' +
-          '<text x="' + (p2[0] + (p2[0] > 60 ? 9 : -9)) + '" y="' + (p2[1] + (p2[1] > 60 ? 12 : -7)) + '" font-size="9" font-family="Arial" fill="' + INK + '" text-anchor="middle"' + (isNext ? ' font-weight="800"' : ' opacity="0.65"') + '>' + (j + 1) + "</text>";
-      }
-    }
-    star.innerHTML =
-      '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + " " + size + '">' + fill + svgLines + dots + "</svg>" +
-      '<div class="cap">' + (starState.done ? "✦ " + t.star_done : t.star_hint) + "</div>";
-    if (!starState.done) {
-      star.querySelectorAll("circle.dot").forEach(function (c) {
-        c.addEventListener("click", function () {
-          var n = parseInt(c.getAttribute("data-i"), 10);
-          if (n === starState.next || (starState.next === STAR_N + 1)) {
-            if (n === starState.next) starState.next += 1;
-            if (starState.next > STAR_N) starState.done = true;
-            renderStar();
-          }
-        });
-      });
-      // clicking dot 1 again at the end closes the shape
-      if (starState.next === STAR_N + 1) { starState.done = true; renderStar(); }
-    }
-  }
-
-  function findShopHeading() {
-    var heads = document.querySelectorAll("h1,h2");
-    for (var i = 0; i < heads.length; i++) {
-      var txt = heads[i].textContent.trim();
-      if (txt === "All books" || txt === "Todos los libros") return heads[i];
-    }
-    return null;
-  }
-
-  function positionStar() {
-    var h = findShopHeading();
-    if (!h) { star.classList.remove("on"); return; }
-    var r = h.getBoundingClientRect();
-    star.classList.add("on");
-    star.style.left = Math.min(window.innerWidth - 150, r.right + 40) + "px";
-    star.style.top = (window.scrollY + r.top - 48) + "px";
-  }
-
-  var repositionQueued = false;
-  function queuePosition() {
-    if (repositionQueued) return;
-    repositionQueued = true;
-    requestAnimationFrame(function () {
-      repositionQueued = false;
-      positionStar();
-    });
-  }
-  window.addEventListener("scroll", queuePosition, { passive: true });
-  window.addEventListener("resize", queuePosition);
-
   // --------------------------------------------------- watch the SPA/lang
   var lastLang = null;
   function refreshAll() {
@@ -476,10 +373,8 @@
     if (langChanged) {
       syncFabLabel();
       if (state.on) renderBar();
-      renderStar();
     }
     renderHeroCard();   // internally guarded, only mutates when needed
-    positionStar();     // read + style-only on a body-level node
   }
   var mo = new MutationObserver(function () { refreshAll(); });
 
@@ -489,7 +384,6 @@
       setTimeout(boot, 120);
       return;
     }
-    renderStar();
     refreshAll();
     mo.observe(root, { childList: true, subtree: true, characterData: true });
   }
