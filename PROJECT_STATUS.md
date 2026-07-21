@@ -111,6 +111,62 @@ longer appears anywhere on the site; its content/generator files remain in
 `agent-tools/` untouched as a historical record only — never build or ship
 under that old id.
 
+**Site foundations pass (2026-07-21)** — five items, all verified locally
+(everything below is committed but NOT live; see the credit block):
+
+1. **Real URL routing**, added because it didn't exist at all — every
+   page (home, shop, all 22 products, about, faq...) lived at `/`, pure
+   in-memory `useState({name:"home"})`, no `pushState`, no reading of
+   `location`. New `assets/mw-routing.js` — loaded **synchronously in
+   `<head>`, BEFORE the module bundle** (same pattern as
+   `legal-content.js`/`manifesto-content.js`; the bundle calls
+   `window.mwRouteFromPath()` during its very first render, so the
+   routing script must already have defined it) — plus two one-line
+   bundle edits: the view state's initial value now reads the real URL,
+   and the app's internal navigate function (`C=m=>{l(m),...}`) now also
+   calls `pushState`. Routes: `/`, `/shop`, `/about`, `/faq`,
+   `/teachers`, `/manifesto`, `/library`, `/checkout`, `/privacy`,
+   `/terms`, `/cookies`, `/product/{id}`. Back/forward works via a full
+   `location.reload()` on `popstate` (simplest robust option — there's
+   no way to reach React's closed-over `setState` from outside React).
+   Netlify's existing catch-all redirect already serves `index.html` for
+   any of these paths — no server-side change was needed. **Local dev
+   server now runs `serve -s`** (see `.claude/launch.json`) to mirror
+   that fallback; without `-s`, a cold load at `/product/dwyi` 404s
+   locally even though it works on Netlify.
+2. **`sitemap.xml` now lists all 28 real routes** (was 1 — just the
+   homepage; that was actually *correct* before routing existed, since
+   nothing else was a real URL).
+3. **Cookie consent banner** — didn't exist at all despite a Cookie
+   Policy page already existing. Bilingual, persists to `localStorage`,
+   exposes `window.mwConsent()` so future analytics work checks consent
+   from day one.
+4. **Best-effort rate limiting** (`netlify/functions/lib/_ratelimit.js`)
+   on `create-checkout` (10/5min per IP) and `download` (20/5min per
+   IP). Fixed-window counter in module-scope memory — **not
+   distributed**, resets on cold start / differs per warm container, but
+   stops the realistic threat (a retry loop or naive script hammering
+   one endpoint). `ls-webhook` deliberately excluded: it already rejects
+   on HMAC signature via `timingSafeEqual` before doing any work, so
+   request volume alone can't get past it — rate limiting it wouldn't
+   add real protection. Verified by invoking the handlers directly in
+   Node (`node -e '...'`, no deploy needed): request 21 trips a 429 with
+   `Retry-After`, a different IP is unaffected, normal error paths
+   unchanged.
+5. Fixed a real typo present in **two** places in the bundle —
+   `hello@maybewellbooks.co` (missing the "m") in the contact line, and
+   the same mistake in the footer copyright — both were the only domain
+   references in the whole bundle.
+
+Deferred from that same audit, not yet done: analytics (needs Dan to
+create a free account somewhere — GA4 / Plausible / Cloudflare Web
+Analytics / Umami — creating accounts isn't something to do on his
+behalf; ask which provider before wiring it in, then gate it behind
+`window.mwConsent()`), `og:image` (missing entirely, so shared links show
+no preview image — the ~60 existing preview JPGs make this cheap once
+picked up), uptime monitoring, function error alerting, a lawyer pass on
+Terms/Privacy, and a proper 500 page.
+
 ## What's blocking a real sale right now
 
 **Resend (delivery email) is fully done** — domain verified, a scoped
@@ -367,7 +423,12 @@ MAYBEWELL BOOKS/
    fetch a live asset to prove it — e.g.
    `https://maybewellbooks.com/assets/previews/tripgames-1.jpg` should be
    `image/jpeg 200`, and the site's `index.html` should reference the
-   current bundle hash.
+   current bundle hash. **Also specifically re-verify routing live**
+   (it was only ever tested against the local `serve -s` server, never
+   against Netlify's real redirect rules): load
+   `https://maybewellbooks.com/product/dwyi` cold and confirm it renders
+   the product, not the homepage; check `/sitemap.xml` is reachable and
+   lists 28 URLs.
 3. Check whether Lemon Squeezy store activation has come through (as of
    2026-07-21, still not — only the "application received" email from
    2026-07-15 exists, no approval yet). Polar.sh remains the researched
@@ -385,3 +446,7 @@ MAYBEWELL BOOKS/
 6. Review whatever `daily-product-builder` has queued as
    `Built (awaiting review)` in `PRODUCT_QUEUE.md`; as of 2026-07-21
    nothing is in that state (Day 7 and Days 9–13 are still `Pending`).
+7. **Ask Dan which analytics provider he wants** (GA4 / Plausible /
+   Cloudflare Web Analytics / Umami — creating the account is his call
+   and his action, not something to do on his behalf) so it can be wired
+   in behind the new `window.mwConsent()` gate from day one.
