@@ -81,17 +81,24 @@ edge, spine shading in `.mw-cover`'s existing 9% padding, and a
 flattens `preserve-3d`** (this silently killed the effect once; the
 shadow lives in `box-shadow` instead).
 
-`fitLibraryCovers()` auto-sizes each cover title: the bundle hardcodes
-`fontSize:19px` inline (sized for full-page covers), which overflowed the
-120px book both ways. It steps 15px→8px per book until the longest whole
-word fits the width and lines fit the height, writing inline with
-`important` (must beat React's inline size *and* the stylesheet
-fallback). **Mid-word breaking is deliberately off** — a `break-word`
-attempt "fit" by butchering words ("The Impossibl/e Garden"), which reads
-worse than overflow; `.mwi-break` is a last-resort class only.
+`fitSmallCovers()` auto-sizes each cover title: the bundle hardcodes
+`fontSize:19px` inline (sized for full-page covers), which overflowed
+both the library's 120px book AND (found later, from a real bug report
+with a screenshot — was unfixed until 2026-07-21) the cart's 56px
+line-item thumbnail, worse there since less room meant the title text
+sprawled across the whole cart row. It steps 15px→8px per cover until the
+longest whole word fits the width and lines fit the height, writing
+inline with `important` (must beat React's inline size *and* the
+stylesheet fallback). **Mid-word breaking is deliberately off** — a
+`break-word` attempt "fit" by butchering words ("The Impossibl/e
+Garden"), which reads worse than overflow; `.mwi-break` is a last-resort
+class only, applied per-cover only if nothing else fits. At the cart's
+56px there's no room for the brand watermark/category label/star at any
+legible size, so those are hidden there (not shrunk to unreadable) —
+scoped separately from the library's rules.
 
-Everything is scoped `.mw-root .mw-librow ...` so only the library gets
-3D books — shop/product/cart covers stay flat (verified). The
+Everything 3D is scoped `.mw-root .mw-librow ...` so only the library
+gets 3D books — shop/product/cart covers stay flat (verified). The
 MutationObserver watches childList/characterData but **not attributes**,
 so the JS writing inline styles can't retrigger it.
 
