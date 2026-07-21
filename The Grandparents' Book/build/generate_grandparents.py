@@ -22,6 +22,7 @@ same text object.
 
 import math
 import os
+import sys
 
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfbase import pdfmetrics
@@ -31,6 +32,10 @@ from reportlab.pdfgen import canvas as _canvas
 import content_grandparents as C
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+# "For Every Chapter" line badge (retroactive pass 2026-07-20: this book is
+# part of the senior line and carries its ribbon on the cover).
+sys.path.insert(0, os.path.join(HERE, "..", "..", "For Every Chapter", "build"))
+from fec_lib import draw_fec_ribbon
 FONT_DIR = os.path.join(HERE, "..", "..", "The World Is Watching", "build", "fonts")
 OUT_PATH = os.path.join(HERE, "..", "the-grandparents-book_v1.0_letter.pdf")
 
@@ -189,6 +194,8 @@ def cover(c):
     plain_text(c, PAGE_W / 2, ty(74), wm, "Nunito-Bold", 13, INK, center=True)
     wm_w = pdfmetrics.stringWidth(wm, "Nunito-Bold", 13)
     draw_star(c, PAGE_W / 2 + wm_w / 2 + 15, ty(70), 5.5, True)
+
+    draw_fec_ribbon(c)
 
     tracked_text(c, PAGE_W / 2, ty(227), C.EYEBROW, "Nunito-Bold", 11, 2.4,
                  INK, center=True)
