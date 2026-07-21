@@ -1,4 +1,4 @@
-/* Maybewell Books — interactive layer ("Margins mode").
+/* Maybewell Books — interactive layer ("Margins mode" + bookshelf library).
  *
  * Self-contained vanilla script, loaded as a plain deferred script AFTER the
  * React bundle (see index.html). It never reaches into React internals:
@@ -9,6 +9,11 @@
  *
  * All prompts below are real prompts from the printed books, with their
  * real page numbers (verified against the shipped PDFs via PyMuPDF).
+ *
+ * (Real URL routing — window.mwRouteFromPath / window.mwPushPath — lives in
+ * the separate mw-routing.js, loaded synchronously in <head> BEFORE the
+ * bundle, because the bundle needs those functions at first render, before
+ * this deferred script has even started. See mw-routing.js for why.)
  */
 (function () {
   "use strict";
@@ -56,6 +61,10 @@
       print: "Print your page",
       done: "Done",
       print_footer: "less scrolling, more creating.",
+      cookie_body: "We use a few cookies to remember your cart and, if you say yes, to understand what's working.",
+      cookie_accept: "Accept",
+      cookie_decline: "Only essential",
+      cookie_policy: "Cookie Policy",
     },
     es: {
       fab: "Dibuja en esta página",
@@ -71,6 +80,10 @@
       print: "Imprime tu página",
       done: "Listo",
       print_footer: "menos scroll, más crear.",
+      cookie_body: "Usamos algunas cookies para recordar tu carrito y, si nos das el visto bueno, para entender qué está funcionando.",
+      cookie_accept: "Aceptar",
+      cookie_decline: "Solo esenciales",
+      cookie_policy: "Política de Cookies",
     },
   };
 
@@ -87,6 +100,7 @@
     ".mwi-fab{position:fixed;right:18px;bottom:18px;z-index:9998;width:54px;height:54px;border-radius:50%;background:" + PUTTY + ";border:2px solid " + INK + ";cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:2px 3px 0 rgba(32,48,58,.25);transition:transform .15s}" +
     ".mwi-fab:hover{transform:rotate(-8deg) scale(1.06)}" +
     ".mwi-fab[aria-pressed=true]{background:" + OCHRE + "}" +
+    ".mwi-fab.mwi-shifted{transition:bottom .2s ease;bottom:92px}" +
     ".mwi-canvas{position:fixed;inset:0;z-index:9990;touch-action:none;cursor:crosshair;display:none}" +
     ".mwi-canvas.on{display:block}" +
     ".mwi-bar{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:9995;background:" + PUTTY + ";border:2px solid " + INK + ";border-radius:14px;padding:12px 16px;max-width:min(560px,94vw);box-shadow:3px 4px 0 rgba(32,48,58,.22);display:none;font-family:inherit}" +
@@ -151,7 +165,18 @@
     // empty state as an empty wooden shelf (copy already says "on the shelf")
     ".mw-root .mw-empty{border:none!important;background:repeating-linear-gradient(to bottom,transparent 0,transparent 82px," + WOOD + " 82px," + WOOD + " 91px," + WOOD_D + " 91px," + WOOD_D + " 96px,transparent 96px,transparent 130px);min-height:130px;padding-top:24px!important}" +
     "@media(max-width:560px){.mw-root .mw-libgrid{grid-template-columns:repeat(auto-fill,minmax(116px,1fr));grid-auto-rows:222px;background:repeating-linear-gradient(to bottom,transparent 0,transparent 138px," + WOOD + " 138px," + WOOD + " 146px," + WOOD_D + " 146px," + WOOD_D + " 150px,transparent 150px,transparent 222px)}.mw-root .mw-librow>div:first-child{width:96px!important}.mw-root .mw-librow .mw-cover{--w:96px;--d:10px}.mw-root .mw-libinfo{margin-top:20px}}" +
-    "@media print{.mwi-fab,.mwi-bar{display:none!important}}";
+    // --- cookie consent banner
+    ".mwi-cookie{position:fixed;left:0;right:0;bottom:0;z-index:9997;background:" + INK + ";color:" + PUTTY + ";" +
+      "padding:16px 18px;display:none;box-shadow:0 -2px 12px rgba(0,0,0,.25);font-family:inherit}" +
+    ".mwi-cookie.on{display:block}" +
+    ".mwi-cookie-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap}" +
+    ".mwi-cookie-text{flex:1;min-width:220px;font-size:13px;line-height:1.45}" +
+    ".mwi-cookie-text a{color:" + PUTTY + ";text-decoration:underline}" +
+    ".mwi-cookie-row{display:flex;gap:10px;flex-wrap:wrap}" +
+    ".mwi-cookie-row button{border-radius:999px;padding:8px 16px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap}" +
+    ".mwi-cookie-accept{background:" + OCHRE + ";border:2px solid " + OCHRE + ";color:" + INK + "}" +
+    ".mwi-cookie-decline{background:transparent;border:1.5px solid " + PUTTY + ";color:" + PUTTY + "}" +
+    "@media print{.mwi-fab,.mwi-bar,.mwi-cookie{display:none!important}}";
 
   var styleEl = document.createElement("style");
   styleEl.id = "mwi-css";
@@ -447,6 +472,65 @@
     card.appendChild(k); card.appendChild(h); card.appendChild(p); card.appendChild(b);
   }
 
+  // ------------------------------------------------------- cookie consent
+  // No analytics/tracking is wired in yet (see PROJECT_STATUS.md) — the
+  // site only ever sets functional cookies (cart/session). This banner and
+  // window.mwConsent() exist so that WHEN analytics is added, it's built to
+  // check consent from day one instead of retrofitting compliance later.
+  var COOKIE_KEY = "mw-cookie-consent"; // localStorage: "accepted" | "declined"
+
+  window.mwConsent = function () {
+    try { return localStorage.getItem(COOKIE_KEY) === "accepted"; }
+    catch (e) { return false; } // no storage access => safest default is no
+  };
+
+  var cookieBanner = document.createElement("div");
+  cookieBanner.className = "mwi-cookie";
+  document.body.appendChild(cookieBanner);
+
+  function setCookieChoice(value) {
+    try { localStorage.setItem(COOKIE_KEY, value); } catch (e) {}
+    cookieBanner.classList.remove("on");
+    fab.classList.remove("mwi-shifted");
+  }
+
+  var cookieRenderedLang = null;
+  function renderCookieBanner() {
+    var decided = false;
+    try { decided = !!localStorage.getItem(COOKIE_KEY); } catch (e) {}
+    if (decided) { cookieBanner.classList.remove("on"); fab.classList.remove("mwi-shifted"); return; }
+    if (cookieRenderedLang === lang()) { cookieBanner.classList.add("on"); fab.classList.add("mwi-shifted"); return; }
+    cookieRenderedLang = lang();
+    var t = T();
+    cookieBanner.innerHTML = "";
+    var inner = document.createElement("div");
+    inner.className = "mwi-cookie-inner";
+    var text = document.createElement("div");
+    text.className = "mwi-cookie-text";
+    text.textContent = t.cookie_body + " ";
+    var link = document.createElement("a");
+    link.href = "/cookies";
+    link.textContent = t.cookie_policy;
+    text.appendChild(link);
+    var row = document.createElement("div");
+    row.className = "mwi-cookie-row";
+    var decline = document.createElement("button");
+    decline.className = "mwi-cookie-decline";
+    decline.textContent = t.cookie_decline;
+    decline.addEventListener("click", function () { setCookieChoice("declined"); });
+    var accept = document.createElement("button");
+    accept.className = "mwi-cookie-accept";
+    accept.textContent = t.cookie_accept;
+    accept.addEventListener("click", function () { setCookieChoice("accepted"); });
+    row.appendChild(decline);
+    row.appendChild(accept);
+    inner.appendChild(text);
+    inner.appendChild(row);
+    cookieBanner.appendChild(inner);
+    cookieBanner.classList.add("on");
+    fab.classList.add("mwi-shifted");
+  }
+
   // --------------------------------------------------- watch the SPA/lang
   var lastLang = null;
   function refreshAll() {
@@ -456,9 +540,11 @@
     if (langChanged) {
       syncFabLabel();
       if (state.on) renderBar();
+      cookieRenderedLang = null;
     }
-    renderHeroCard();   // internally guarded, only mutates when needed
-    fitLibraryCovers(); // no-op unless the library view is on screen
+    renderHeroCard();     // internally guarded, only mutates when needed
+    fitLibraryCovers();   // no-op unless the library view is on screen
+    renderCookieBanner(); // internally guarded, only mutates when needed
   }
   // Only childList/characterData — NOT attributes, so fitLibraryCovers()
   // writing inline styles can never retrigger this observer.

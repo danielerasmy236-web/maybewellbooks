@@ -9,10 +9,19 @@
 // to deliver.
 
 const { PRODUCTS } = require("./lib/_catalog");
+const { rateLimit, tooManyRequests } = require("./lib/_ratelimit");
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method not allowed" };
+  }
+
+  // Real checkout attempts from one visitor are rare; this only ever fires
+  // on a retry loop or a script hammering the endpoint (each call reaches
+  // Lemon Squeezy's API, which we don't want spammed).
+  const limit = rateLimit("checkout", event, { max: 10, windowMs: 5 * 60 * 1000 });
+  if (!limit.allowed) {
+    return tooManyRequests(limit.retryAfterSeconds, "Too many checkout attempts. Please wait a few minutes and try again.");
   }
 
   let body;

@@ -10,6 +10,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { PRODUCTS } = require("./lib/_catalog");
+const { rateLimit, tooManyRequests } = require("./lib/_ratelimit");
 
 function expectedToken(orderId, productId, secret) {
   return crypto.createHmac("sha256", secret).update(`${orderId}:${productId}`).digest("hex");
@@ -21,6 +22,14 @@ exports.handler = async (event) => {
 
   if (!id || !order || !token || !secret || !PRODUCTS[id]) {
     return { statusCode: 400, body: "Invalid download link." };
+  }
+
+  // A real buyer might re-download a few times; a script trying to guess
+  // tokens (computationally hopeless against HMAC-SHA256, but still free
+  // to attempt without this) or just hammering the endpoint should not.
+  const limit = rateLimit("download", event, { max: 20, windowMs: 5 * 60 * 1000 });
+  if (!limit.allowed) {
+    return tooManyRequests(limit.retryAfterSeconds, "Too many download attempts. Please wait a few minutes and try again.");
   }
 
   const expected = expectedToken(order, id, secret);
