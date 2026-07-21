@@ -53,6 +53,25 @@ product buy CTAs), Privacy/Terms/Cookies (EN+ES, not lawyer-reviewed), a
 clickable/expandable lightbox on every product's preview images, and a
 hand-drawn nav-underline hover animation (GSAP).
 
+**Interactive layer (added 2026-07-20, replaces the old hero drawing
+board):** `assets/mw-interactive.js` — a plain deferred script, loaded
+AFTER the bundle, zero React internals. Two features: (1) **"Margins
+mode"** — a pencil FAB (bottom-right) that turns the whole page into a
+drawing overlay, with rotating REAL prompts from the Imagine-line books
+(real page numbers, verified against the shipped PDFs), a "Get the book"
+CTA that navigates the SPA to the product card, and a "Print your page"
+button that prints prompt+drawing as a Maybewell-style book page via a
+hidden iframe; scroll is locked while drawing (mobile scroll/draw
+conflict). The hero's right column (`.mw-hero-r`) now renders EMPTY in the
+bundle (the old drawboard's call site `s.jsx(ap,{t:n})` was replaced with
+`null`; the dead `ap` function remains, harmless) and the script mounts an
+invitation card into it. (2) **Dot-to-dot star** next to the shop's "All
+books" heading — a body-appended overlay (never inserts into
+React-managed DOM), pointer-events pass through except the dots. Language
+is detected from `.mw-langbtn` (shows the OTHER language: "ES" = site in
+EN); a MutationObserver on #root re-renders the layer's strings on
+toggle — its handlers are guarded to avoid mutate-observe loops.
+
 **Road Trip Games shipped 2026-07-20** (id `tripgames`) — the resolved
 decision in `PRODUCT_QUEUE.md` to merge the old "Paper Games for Road
 Trips" (id `roadtrip`, never built/shipped) into a single Field Notes
@@ -195,7 +214,8 @@ MAYBEWELL BOOKS/
 │   └── run_next.py / run_weekly.sh <- weekly launchd job, generates one pending item for review
 └── website-repos/maybewell-site-dist-v2/   <- the actual deployed site
     ├── index.html                  <- loads legal/manifesto content, GSAP CDN, then the bundle
-    ├── assets/index-e55cf50b.js    <- THE frontend (minified, hand-edited) — VERIFY this hash is current
+    ├── assets/index-*.js           <- THE frontend (minified, hand-edited) — check index.html for the current hash
+    ├── assets/mw-interactive.js    <- "margins mode" drawing overlay + shop dot-to-dot star (plain script, loads after bundle)
     ├── assets/legal-content.js     <- Privacy/Terms/Cookies text (EN+ES)
     ├── assets/manifesto-content.js <- the three manifestos (EN done, ES is a ready:false placeholder)
     ├── assets/previews/            <- 3 preview JPGs per product, {id}-1.jpg / -2.jpg / -3.jpg

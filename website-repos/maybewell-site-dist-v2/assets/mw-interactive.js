@@ -1,0 +1,502 @@
+/* Maybewell Books — interactive layer ("Margins mode" + the shop star).
+ *
+ * Self-contained vanilla script, loaded as a plain deferred script AFTER the
+ * React bundle (see index.html). It never reaches into React internals:
+ *  - The pencil button + full-page drawing overlay are appended to <body>.
+ *  - The hero invitation mounts into .mw-hero-r, which the bundle renders
+ *    EMPTY (the old hero drawing board was removed and its call site
+ *    replaced with null), so React never manages children there.
+ *  - The dot-to-dot star is a body-appended overlay positioned next to the
+ *    "All books" heading — no DOM insertion inside React-managed lists.
+ *
+ * All prompts below are real prompts from the printed books, with their
+ * real page numbers (verified against the shipped PDFs via PyMuPDF).
+ */
+(function () {
+  "use strict";
+
+  var INK = "#20303A";
+  var PUTTY = "#F3EEE6";
+  var OCHRE = "#D99A2B";
+  var TEAL = "#2A9D8F";
+  var CORAL = "#E8604C";
+  var VIOLET = "#7C6FD0";
+  var SWATCHES = [INK, OCHRE, TEAL, CORAL, VIOLET];
+
+  // Real prompts, real page numbers. {book id, display name, total pages}
+  var BOOKS = {
+    dwyi: { name: "Draw What You Imagine", pages: 94 },
+    garden: { name: "The Impossible Garden", pages: 73 },
+    machines: { name: "Machines Nobody's Built Yet", pages: 72 },
+  };
+  var PROMPTS = [
+    { t: "Sadness built a house. What does it look like inside?", b: "dwyi", p: 9 },
+    { t: "The last page of a notebook. What drawing has it been holding for years?", b: "dwyi", p: 27 },
+    { t: "Draw the school for animals who taught themselves to read.", b: "dwyi", p: 36 },
+    { t: "The last flower of a species nobody ever named. Draw its portrait so it isn't forgotten.", b: "garden", p: 9 },
+    { t: "Draw what a tree dreams about in winter.", b: "garden", p: 30 },
+    { t: "A lightning bolt struck this tree and now it glows from inside. Draw it at midnight.", b: "garden", p: 37 },
+    { t: "Draw the machine that turns boredom into something useful.", b: "machines", p: 9 },
+    { t: "Draw the machine that gave the wind its first direction.", b: "machines", p: 23 },
+    { t: 'Draw a machine that exists only to say "you can do this."', b: "machines", p: 30 },
+  ];
+
+  var STR = {
+    en: {
+      fab: "Draw on this page",
+      hero_kicker: "THE MARGINS ARE YOURS",
+      hero_title: "This whole page is a margin.",
+      hero_body: "Every Maybewell book starts with a blank space and one good prompt. Try one — right here, on top of everything.",
+      hero_btn: "Pick up the pencil",
+      credit: function (b, p) { return "— from " + b + ", page " + p; },
+      more: function (n) { return "There are " + n + " more pages like this. On paper."; },
+      get_book: "Get the book",
+      new_prompt: "New prompt",
+      clear: "Clear",
+      print: "Print your page",
+      done: "Done",
+      print_footer: "less scrolling, more creating.",
+      star_hint: "connect the dots",
+      star_done: "the Maybewell star — made by you",
+    },
+    es: {
+      fab: "Dibuja en esta página",
+      hero_kicker: "LOS MÁRGENES SON TUYOS",
+      hero_title: "Toda esta página es un margen.",
+      hero_body: "Cada libro de Maybewell empieza con un espacio en blanco y una buena consigna. Prueba una — aquí mismo, encima de todo.",
+      hero_btn: "Toma el lápiz",
+      credit: function (b, p) { return "— de " + b + ", página " + p; },
+      more: function (n) { return "Hay " + n + " páginas más como esta. En papel."; },
+      get_book: "Ver el libro",
+      new_prompt: "Otra consigna",
+      clear: "Borrar",
+      print: "Imprime tu página",
+      done: "Listo",
+      print_footer: "menos scroll, más crear.",
+      star_hint: "une los puntos",
+      star_done: "la estrella de Maybewell — hecha por ti",
+    },
+  };
+
+  function lang() {
+    var btn = document.querySelector(".mw-langbtn");
+    // the button shows the OTHER language: "ES" means the site is in English
+    if (btn && btn.textContent.trim() === "EN") return "es";
+    return "en";
+  }
+  function T() { return STR[lang()]; }
+
+  // ------------------------------------------------------------- styles
+  var css = "" +
+    ".mwi-fab{position:fixed;right:18px;bottom:18px;z-index:9998;width:54px;height:54px;border-radius:50%;background:" + PUTTY + ";border:2px solid " + INK + ";cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:2px 3px 0 rgba(32,48,58,.25);transition:transform .15s}" +
+    ".mwi-fab:hover{transform:rotate(-8deg) scale(1.06)}" +
+    ".mwi-fab[aria-pressed=true]{background:" + OCHRE + "}" +
+    ".mwi-canvas{position:fixed;inset:0;z-index:9990;touch-action:none;cursor:crosshair;display:none}" +
+    ".mwi-canvas.on{display:block}" +
+    ".mwi-bar{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:9995;background:" + PUTTY + ";border:2px solid " + INK + ";border-radius:14px;padding:12px 16px;max-width:min(560px,94vw);box-shadow:3px 4px 0 rgba(32,48,58,.22);display:none;font-family:inherit}" +
+    ".mwi-bar.on{display:block}" +
+    ".mwi-prompt{font-size:16px;font-weight:700;color:" + INK + ";line-height:1.35;margin:0 0 2px}" +
+    ".mwi-credit{font-size:11.5px;font-style:italic;color:" + INK + ";opacity:.75;margin:0 0 8px}" +
+    ".mwi-cta{font-size:12.5px;color:" + INK + ";margin:0 0 10px}" +
+    ".mwi-cta button{margin-left:8px;background:" + OCHRE + ";border:none;border-radius:999px;padding:4px 12px;font-weight:800;font-size:12px;color:" + INK + ";cursor:pointer}" +
+    ".mwi-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}" +
+    ".mwi-sw{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}" +
+    ".mwi-sw.sel{outline:2px solid " + INK + ";outline-offset:2px}" +
+    ".mwi-btn{background:none;border:1.5px solid " + INK + ";border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;color:" + INK + ";cursor:pointer}" +
+    ".mwi-btn:hover{background:rgba(32,48,58,.08)}" +
+    ".mwi-hero{border:2px solid " + INK + ";border-radius:16px;background:" + PUTTY + ";padding:26px 24px;box-shadow:4px 5px 0 rgba(32,48,58,.2);max-width:420px}" +
+    ".mwi-hero .k{font-size:11px;font-weight:800;letter-spacing:.18em;color:" + INK + ";opacity:.8;margin:0 0 10px}" +
+    ".mwi-hero h3{font-size:24px;margin:0 0 10px;color:" + INK + ";line-height:1.15}" +
+    ".mwi-hero p{font-size:14px;color:" + INK + ";line-height:1.5;margin:0 0 16px}" +
+    ".mwi-hero button{background:" + OCHRE + ";border:2px solid " + INK + ";border-radius:999px;padding:9px 18px;font-weight:800;font-size:14px;color:" + INK + ";cursor:pointer;box-shadow:2px 2px 0 rgba(32,48,58,.3)}" +
+    ".mwi-hero button:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(32,48,58,.3)}" +
+    ".mwi-star{position:absolute;z-index:900;display:none;pointer-events:none}" +
+    ".mwi-star.on{display:block}" +
+    ".mwi-star circle.dot{pointer-events:auto}" +
+    ".mwi-star .cap{font-size:11px;font-style:italic;text-align:center;color:" + INK + ";opacity:.8;margin-top:2px}" +
+    ".mwi-star circle.dot{cursor:pointer}" +
+    "@media(max-width:900px){.mwi-star{display:none!important}}" +
+    "@media print{.mwi-fab,.mwi-bar,.mwi-star{display:none!important}}";
+
+  var styleEl = document.createElement("style");
+  styleEl.id = "mwi-css";
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+
+  // ------------------------------------------------------- margins mode
+  var state = {
+    on: false,
+    color: INK,
+    promptIdx: Math.floor(Math.random() * PROMPTS.length),
+    drew: false,
+  };
+
+  var canvas = document.createElement("canvas");
+  canvas.className = "mwi-canvas";
+  canvas.setAttribute("aria-label", "drawing overlay");
+  document.body.appendChild(canvas);
+
+  function sizeCanvas() {
+    var dpr = window.devicePixelRatio || 1;
+    var w = window.innerWidth, h = window.innerHeight;
+    if (canvas.width === Math.round(w * dpr) && canvas.height === Math.round(h * dpr)) return;
+    // preserve existing drawing through resizes
+    var keep = null;
+    if (state.drew) {
+      keep = document.createElement("canvas");
+      keep.width = canvas.width; keep.height = canvas.height;
+      keep.getContext("2d").drawImage(canvas, 0, 0);
+    }
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    var ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (keep) ctx.drawImage(keep, 0, 0, keep.width, keep.height, 0, 0, w, h);
+  }
+
+  var drawing = false, last = null;
+  function pos(ev) {
+    var r = canvas.getBoundingClientRect();
+    return { x: ev.clientX - r.left, y: ev.clientY - r.top };
+  }
+  canvas.addEventListener("pointerdown", function (ev) {
+    drawing = true; last = pos(ev);
+    canvas.setPointerCapture(ev.pointerId);
+  });
+  canvas.addEventListener("pointermove", function (ev) {
+    if (!drawing) return;
+    var ctx = canvas.getContext("2d");
+    var p = pos(ev);
+    ctx.strokeStyle = state.color;
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.shadowColor = state.color;
+    ctx.shadowBlur = 2;
+    ctx.globalAlpha = 0.95;
+    ctx.beginPath();
+    ctx.moveTo(last.x, last.y);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    last = p;
+    state.drew = true;
+  });
+  function stopDraw() { drawing = false; }
+  canvas.addEventListener("pointerup", stopDraw);
+  canvas.addEventListener("pointerleave", stopDraw);
+
+  // toolbar
+  var bar = document.createElement("div");
+  bar.className = "mwi-bar";
+  document.body.appendChild(bar);
+
+  function renderBar() {
+    var t = T();
+    var pr = PROMPTS[state.promptIdx];
+    var book = BOOKS[pr.b];
+    bar.innerHTML = "";
+
+    var pEl = document.createElement("p");
+    pEl.className = "mwi-prompt";
+    pEl.textContent = pr.t;
+    bar.appendChild(pEl);
+
+    var cEl = document.createElement("p");
+    cEl.className = "mwi-credit";
+    cEl.textContent = t.credit(book.name, pr.p);
+    bar.appendChild(cEl);
+
+    var cta = document.createElement("p");
+    cta.className = "mwi-cta";
+    cta.textContent = t.more(book.pages);
+    var go = document.createElement("button");
+    go.textContent = t.get_book + " →";
+    go.addEventListener("click", function () { setMode(false); goToProduct(pr.b); });
+    cta.appendChild(go);
+    bar.appendChild(cta);
+
+    var row = document.createElement("div");
+    row.className = "mwi-row";
+    SWATCHES.forEach(function (col) {
+      var sw = document.createElement("button");
+      sw.className = "mwi-sw" + (state.color === col ? " sel" : "");
+      sw.style.background = col;
+      sw.setAttribute("aria-label", "color " + col);
+      sw.addEventListener("click", function () { state.color = col; renderBar(); });
+      row.appendChild(sw);
+    });
+    [[t.new_prompt, nextPrompt], [t.clear, clearCanvas], [t.print, printPage], [t.done, function () { setMode(false); }]]
+      .forEach(function (pair) {
+        var b = document.createElement("button");
+        b.className = "mwi-btn";
+        b.textContent = pair[0];
+        b.addEventListener("click", pair[1]);
+        row.appendChild(b);
+      });
+    bar.appendChild(row);
+  }
+
+  function nextPrompt() {
+    state.promptIdx = (state.promptIdx + 1) % PROMPTS.length;
+    renderBar();
+  }
+  function clearCanvas() {
+    var ctx = canvas.getContext("2d");
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+    state.drew = false;
+  }
+
+  var savedOverflow = "";
+  function setMode(on) {
+    state.on = on;
+    if (on) sizeCanvas();
+    canvas.classList.toggle("on", on);
+    bar.classList.toggle("on", on);
+    fab.setAttribute("aria-pressed", on ? "true" : "false");
+    if (on) {
+      renderBar();
+      savedOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = savedOverflow;
+    }
+  }
+
+  // print: a clean "page of the book" — the prompt + the visitor's drawing,
+  // laid out like a Maybewell page, via a hidden iframe (no popups).
+  function printPage() {
+    var t = T();
+    var pr = PROMPTS[state.promptIdx];
+    var book = BOOKS[pr.b];
+    var img = canvas.toDataURL("image/png");
+    var html =
+      "<!doctype html><html><head><meta charset='utf-8'><title>Maybewell Books</title>" +
+      "<style>@page{margin:14mm}body{font-family:Georgia,serif;background:" + PUTTY + ";color:" + INK + ";margin:0;padding:28px}" +
+      ".wm{font-family:Arial,sans-serif;font-weight:800;letter-spacing:.35em;font-size:12px;text-align:center;margin-bottom:34px}" +
+      ".pr{font-size:22px;font-weight:700;line-height:1.35;max-width:620px;margin:0 auto 6px;text-align:center}" +
+      ".cr{font-style:italic;font-size:12px;text-align:center;opacity:.75;margin-bottom:18px}" +
+      "img{display:block;margin:0 auto;max-width:100%;border:1px dashed " + INK + ";border-radius:8px}" +
+      ".ft{font-family:Arial,sans-serif;font-size:11px;text-align:center;margin-top:26px;opacity:.8}</style></head><body>" +
+      "<div class='wm'>M A Y B E W E L L &nbsp; B O O K S</div>" +
+      "<div class='pr'></div><div class='cr'></div>" +
+      "<img alt='your drawing'>" +
+      "<div class='ft'>maybewellbooks.com &middot; " + t.print_footer + "</div>" +
+      "</body></html>";
+    var frame = document.createElement("iframe");
+    frame.style.position = "fixed";
+    frame.style.right = "0";
+    frame.style.bottom = "0";
+    frame.style.width = "0";
+    frame.style.height = "0";
+    frame.style.border = "0";
+    document.body.appendChild(frame);
+    var doc = frame.contentDocument;
+    doc.open(); doc.write(html); doc.close();
+    doc.querySelector(".pr").textContent = pr.t;
+    doc.querySelector(".cr").textContent = t.credit(book.name, pr.p);
+    var image = doc.querySelector("img");
+    image.onload = function () {
+      frame.contentWindow.focus();
+      frame.contentWindow.print();
+      setTimeout(function () { frame.remove(); }, 4000);
+    };
+    image.src = img;
+  }
+
+  function goToProduct(id) {
+    function scrollToIt() {
+      var el = document.getElementById(id);
+      if (!el) return false;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.style.transition = "box-shadow .4s";
+      el.style.boxShadow = "0 0 0 4px " + OCHRE;
+      setTimeout(function () { el.style.boxShadow = ""; }, 1800);
+      return true;
+    }
+    if (scrollToIt()) return;
+    // navigate the SPA to the shop page (first nav link), then find the card
+    var nav = document.querySelector(".mw-navlinks");
+    if (nav && nav.children[0]) nav.children[0].querySelector("button, a")
+      ? nav.children[0].querySelector("button, a").click()
+      : nav.children[0].click();
+    var tries = 0;
+    var iv = setInterval(function () {
+      tries += 1;
+      if (scrollToIt() || tries > 30) clearInterval(iv);
+    }, 100);
+  }
+
+  // pencil FAB
+  var fab = document.createElement("button");
+  fab.className = "mwi-fab";
+  fab.setAttribute("aria-pressed", "false");
+  fab.innerHTML =
+    '<svg width="26" height="26" viewBox="0 0 24 24" fill="none">' +
+    '<path d="M4 20l1.2-4.2L16.4 4.6a1.8 1.8 0 0 1 2.6 0l.4.4a1.8 1.8 0 0 1 0 2.6L8.2 18.8 4 20z" stroke="' + INK + '" stroke-width="1.8" stroke-linejoin="round" fill="' + PUTTY + '"/>' +
+    '<path d="M14.8 6.2l3 3" stroke="' + INK + '" stroke-width="1.8"/>' +
+    '<path d="M5.2 15.8l3 3" stroke="' + INK + '" stroke-width="1.8"/></svg>';
+  document.body.appendChild(fab);
+  fab.addEventListener("click", function () { setMode(!state.on); });
+  function syncFabLabel() { fab.setAttribute("aria-label", T().fab); fab.title = T().fab; }
+  syncFabLabel();
+
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key === "Escape" && state.on) setMode(false);
+  });
+  window.addEventListener("resize", function () { if (state.on) sizeCanvas(); });
+
+  // -------------------------------------------- hero invitation (mounts
+  // into the .mw-hero-r column the bundle now renders empty)
+  var heroRenderedLang = null;
+  function renderHeroCard() {
+    var slot = document.querySelector(".mw-hero-r");
+    if (!slot) { heroRenderedLang = null; return; }
+    var card = slot.querySelector(".mwi-hero");
+    // guard: re-rendering mutates #root, which the MutationObserver watches —
+    // only touch the DOM when the card is missing or the language changed.
+    if (card && heroRenderedLang === lang()) return;
+    heroRenderedLang = lang();
+    var t = T();
+    if (!card) {
+      card = document.createElement("div");
+      card.className = "mwi-hero";
+      slot.appendChild(card);
+    }
+    card.innerHTML = "";
+    var k = document.createElement("p"); k.className = "k"; k.textContent = t.hero_kicker;
+    var h = document.createElement("h3"); h.textContent = t.hero_title;
+    var p = document.createElement("p"); p.textContent = t.hero_body;
+    var b = document.createElement("button"); b.textContent = t.hero_btn + " ✎";
+    b.addEventListener("click", function () { setMode(true); });
+    card.appendChild(k); card.appendChild(h); card.appendChild(p); card.appendChild(b);
+  }
+
+  // ------------------------------------------------- dot-to-dot star at
+  // the "All books" heading (a body-appended overlay, repositioned live)
+  var star = document.createElement("div");
+  star.className = "mwi-star";
+  document.body.appendChild(star);
+  var starState = { next: 1, done: false };
+  var STAR_N = 10;
+
+  function starPoints(size) {
+    var pts = [];
+    var cx = size / 2, cy = size / 2;
+    for (var i = 0; i < STAR_N; i++) {
+      var ang = -Math.PI / 2 + i * Math.PI / 5;
+      var r = (i % 2 === 0) ? size * 0.46 : size * 0.19;
+      pts.push([cx + r * Math.cos(ang), cy + r * Math.sin(ang)]);
+    }
+    return pts;
+  }
+
+  function renderStar() {
+    var size = 120;
+    var pts = starPoints(size);
+    var t = T();
+    var svgLines = "";
+    for (var i = 1; i < starState.next; i++) {
+      var a = pts[i - 1], b2 = pts[i % STAR_N];
+      svgLines += '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b2[0] + '" y2="' + b2[1] + '" stroke="' + INK + '" stroke-width="2" stroke-linecap="round"/>';
+    }
+    var fill = "";
+    if (starState.done) {
+      var d = pts.map(function (p, i) { return (i ? "L" : "M") + p[0] + " " + p[1]; }).join("") + "Z";
+      fill = '<path d="' + d + '" fill="' + OCHRE + '" opacity="0.85"/>';
+    }
+    var dots = "";
+    if (!starState.done) {
+      for (var j = 0; j < STAR_N; j++) {
+        var p2 = pts[j];
+        var isNext = (j === (starState.next - 1) % STAR_N && starState.next <= STAR_N);
+        dots += '<circle class="dot" data-i="' + (j + 1) + '" cx="' + p2[0] + '" cy="' + p2[1] + '" r="6" fill="' + (j + 1 < starState.next ? INK : PUTTY) + '" stroke="' + INK + '" stroke-width="1.6"/>' +
+          '<text x="' + (p2[0] + (p2[0] > 60 ? 9 : -9)) + '" y="' + (p2[1] + (p2[1] > 60 ? 12 : -7)) + '" font-size="9" font-family="Arial" fill="' + INK + '" text-anchor="middle"' + (isNext ? ' font-weight="800"' : ' opacity="0.65"') + '>' + (j + 1) + "</text>";
+      }
+    }
+    star.innerHTML =
+      '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + " " + size + '">' + fill + svgLines + dots + "</svg>" +
+      '<div class="cap">' + (starState.done ? "✦ " + t.star_done : t.star_hint) + "</div>";
+    if (!starState.done) {
+      star.querySelectorAll("circle.dot").forEach(function (c) {
+        c.addEventListener("click", function () {
+          var n = parseInt(c.getAttribute("data-i"), 10);
+          if (n === starState.next || (starState.next === STAR_N + 1)) {
+            if (n === starState.next) starState.next += 1;
+            if (starState.next > STAR_N) starState.done = true;
+            renderStar();
+          }
+        });
+      });
+      // clicking dot 1 again at the end closes the shape
+      if (starState.next === STAR_N + 1) { starState.done = true; renderStar(); }
+    }
+  }
+
+  function findShopHeading() {
+    var heads = document.querySelectorAll("h1,h2");
+    for (var i = 0; i < heads.length; i++) {
+      var txt = heads[i].textContent.trim();
+      if (txt === "All books" || txt === "Todos los libros") return heads[i];
+    }
+    return null;
+  }
+
+  function positionStar() {
+    var h = findShopHeading();
+    if (!h) { star.classList.remove("on"); return; }
+    var r = h.getBoundingClientRect();
+    star.classList.add("on");
+    star.style.left = Math.min(window.innerWidth - 150, r.right + 40) + "px";
+    star.style.top = (window.scrollY + r.top - 48) + "px";
+  }
+
+  var repositionQueued = false;
+  function queuePosition() {
+    if (repositionQueued) return;
+    repositionQueued = true;
+    requestAnimationFrame(function () {
+      repositionQueued = false;
+      positionStar();
+    });
+  }
+  window.addEventListener("scroll", queuePosition, { passive: true });
+  window.addEventListener("resize", queuePosition);
+
+  // --------------------------------------------------- watch the SPA/lang
+  var lastLang = null;
+  function refreshAll() {
+    var l = lang();
+    var langChanged = l !== lastLang;
+    lastLang = l;
+    if (langChanged) {
+      syncFabLabel();
+      if (state.on) renderBar();
+      renderStar();
+    }
+    renderHeroCard();   // internally guarded, only mutates when needed
+    positionStar();     // read + style-only on a body-level node
+  }
+  var mo = new MutationObserver(function () { refreshAll(); });
+
+  function boot() {
+    var root = document.getElementById("root");
+    if (!root || !document.querySelector(".mw-root")) {
+      setTimeout(boot, 120);
+      return;
+    }
+    renderStar();
+    refreshAll();
+    mo.observe(root, { childList: true, subtree: true, characterData: true });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
