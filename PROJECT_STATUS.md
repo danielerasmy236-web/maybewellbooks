@@ -23,7 +23,7 @@ know before touching the site**, and it has burned people before — see
 
 ## What's live right now
 
-**22 real, purchasable products**, in four lines:
+**21 real, purchasable products**, in four lines:
 
 - **Imagine** (solo drawing prompts, $5 each): Draw What You Imagine (94pp),
   The Impossible Garden (73pp), Machines Nobody's Built Yet (72pp).
@@ -36,7 +36,7 @@ know before touching the site**, and it has burned people before — see
 - **Puzzles / STEM / Writing / Seasonal** (the original "PDF-factory"
   catalog, $3–4): Mazes of the Lost City (61pp), Little Logic Lab (48pp),
   Space STEM Pack (16pp — genuinely short but complete, 12 real projects),
-  Story Starters (72pp), Word Search Safari (47pp), The Autumn Book (36pp).
+  Story Starters (72pp), Word Search Safari (47pp).
 - **For Teachers & Educators** (classroom activities, $2 single-sheet / $4
   weekly-module, 6 files): Chain Story, Group Detective, Build Without
   Words — each in both formats.

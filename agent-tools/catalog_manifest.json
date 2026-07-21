@@ -43,12 +43,13 @@
       "generator": "generate_autumn_book",
       "title": "The Autumn Book",
       "category": "seasonal",
-      "status": "published",
+      "status": "retired",
       "output": "The Autumn Book/the-autumn-book_v1.0_letter.pdf",
-      "site_path": "website-repos/maybewell-site-dist-v2/netlify/functions/_assets/the-autumn-book_v1.0_letter.pdf",
       "page_count": 36,
       "generated_at": "2026-07-20T00:00:00",
-      "published_at": "2026-07-20T00:00:00"
+      "published_at": "2026-07-20T00:00:00",
+      "retired_at": "2026-07-20T00:00:00",
+      "note": "Pulled from the store at Dan's request (2026-07-20). Removed from both client and server catalogs and from netlify/functions/_assets/; source PDF kept at 'The Autumn Book/' for reference."
     },
     {
       "id": "roadtrip",

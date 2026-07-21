@@ -32,7 +32,6 @@ const PRODUCTS = {
   stem: { name: "Space STEM Pack", price: 400, file: "space-stem-pack_v1.0_letter.pdf" },
   story: { name: "Story Starters", price: 400, file: "story-starters_v1.0_letter.pdf" },
   words: { name: "Word Search Safari", price: 300, file: "word-search-safari_v1.0_letter.pdf" },
-  autumn: { name: "The Autumn Book", price: 300, file: "the-autumn-book_v1.0_letter.pdf" },
 };
 
 module.exports = { PRODUCTS };

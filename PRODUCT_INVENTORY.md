@@ -8,9 +8,9 @@ this file is a snapshot of it, dated 2026-07-20). Paths are relative to
 
 **How to use this for Lemon Squeezy:** for each row, download the PDF at the
 given path and upload it as that product's file when you create it in Lemon
-Squeezy, using the same name and price. All 22 currently sell through the
+Squeezy, using the same name and price. All 21 currently sell through the
 single "pay what you want" checkout variant already wired in
-`create-checkout.js` — you likely don't need 22 separate Lemon Squeezy
+`create-checkout.js` — you likely don't need 21 separate Lemon Squeezy
 products/variants unless you want per-title analytics; ask if you want help
 deciding which model fits.
 
@@ -47,7 +47,6 @@ below are the real, verified counts, corrected at publish time.
 | Space STEM Pack | $4.00 | 16 | `Space STEM Pack/space-stem-pack_v1.0_letter.pdf` |
 | Story Starters | $4.00 | 72 | `Story Starters/story-starters_v1.0_letter.pdf` |
 | Word Search Safari | $3.00 | 47 | `Word Search Safari/word-search-safari_v1.0_letter.pdf` |
-| The Autumn Book | $3.00 | 36 | `The Autumn Book/the-autumn-book_v1.0_letter.pdf` |
 
 Space STEM Pack is genuinely short (16pp for 12 one-page projects) — the
 content itself is real and complete (sundial, 3 constellation charts, moon
@@ -69,7 +68,7 @@ $4 Weekly Module.
 | Build Without Words — Single Sheet | $2.00 | 3 | `For Teachers and Educators/build-without-words-single-sheet_v1.0_letter.pdf` |
 | Build Without Words — Weekly Module | $4.00 | 7 | `For Teachers and Educators/build-without-words-weekly-module_v1.0_letter.pdf` |
 
-**Total: 22 real, finished products — all live and purchasable on
+**Total: 21 real, finished products — all live and purchasable on
 maybewellbooks.com today** (pending only Lemon Squeezy activation to
 actually process payment; see PROJECT_STATUS.md).
 
