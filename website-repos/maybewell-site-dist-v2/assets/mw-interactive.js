@@ -131,6 +131,18 @@
     ".mw-root .mw-librow .mw-cover::after{content:\"\";position:absolute;top:3px;left:0;width:calc(var(--d) - 2px);height:calc(100% - 6px);" +
       "background:repeating-linear-gradient(to right,#FDFAF4 0 1.5px,#DFD7C9 1.5px 2.5px);" +
       "transform:translateX(calc(var(--w) - var(--d)/2 - 3px)) rotateY(90deg) translateX(calc(var(--d)/2))}" +
+    // cover interior rescaled for the 120px shelf book (the bundle sizes these
+    // for full-size product covers). Title size is finished by fitLibraryCovers().
+    ".mw-root .mw-librow .mw-cover-frame{gap:5px!important;padding:9% 8%!important}" +
+    // NEVER break mid-word (that reads worse than overflow: "Grandpar-ents'").
+    // Lines break at spaces/hyphens only; fitLibraryCovers() shrinks the size
+    // until the longest whole word fits. .mwi-break is the last-resort escape
+    // hatch it adds for a pathological single long word at the minimum size.
+    ".mw-root .mw-librow .mw-cover-title{font-size:12px!important;line-height:1.14!important;overflow-wrap:normal;hyphens:manual;max-width:100%}" +
+    ".mw-root .mw-librow .mw-cover-title.mwi-break{overflow-wrap:anywhere}" +
+    ".mw-root .mw-librow .mw-cover-brand,.mw-root .mw-librow .mw-cover-cat{font-size:5.5px!important;letter-spacing:1.1px!important}" +
+    ".mw-root .mw-librow .mw-cover-rule{width:22px!important;height:1.5px!important}" +
+    ".mw-root .mw-librow .mw-cover-frame>svg{width:11px!important;height:11px!important}" +
     ".mw-root .mw-libinfo{flex:none!important;display:flex;flex-direction:column;align-items:center;gap:2px;max-width:150px;margin-top:24px}" +
     ".mw-root .mw-libinfo .mw-cardtitle{font-size:13.5px!important;line-height:1.25;text-align:center}" +
     ".mw-root .mw-libinfo .mw-dim{font-size:11px!important;opacity:.6}" +
@@ -375,6 +387,42 @@
 
   // -------------------------------------------- hero invitation (mounts
   // into the .mw-hero-r column the bundle now renders empty)
+  // ------------------------------------------- auto-fit library cover titles
+  // The bundle hardcodes fontSize:19px inline on .mw-cover-title (sized for
+  // full-page product covers). On a 120px shelf book that overflows both ways:
+  // horizontally on unbreakable words ("Grandparents'"), vertically on long
+  // titles ("Build Without Words — Weekly Module"). Rather than pick one small
+  // size (which would shrink short titles needlessly), measure each book and
+  // step the size down until it fits both axes — so any future title fits too.
+  // Inline + "important" is required: it must beat both React's inline size and
+  // the stylesheet fallback above.
+  var FIT_MAX = 15, FIT_MIN = 8, FIT_STEP = 0.5;
+
+  function fitLibraryCovers() {
+    var frames = document.querySelectorAll(".mw-librow .mw-cover-frame");
+    for (var i = 0; i < frames.length; i++) {
+      var frame = frames[i];
+      var title = frame.querySelector(".mw-cover-title");
+      if (!title) continue;
+      var size = FIT_MAX;
+      title.classList.remove("mwi-break");
+      title.style.setProperty("font-size", size + "px", "important");
+      var guard = 0;
+      var overflows = function () {
+        // width: the longest unbroken word sticking out. height: too many lines.
+        return title.scrollWidth > title.clientWidth + 1 ||
+               frame.scrollHeight > frame.clientHeight + 1;
+      };
+      while (guard++ < 40 && size > FIT_MIN && overflows()) {
+        size -= FIT_STEP;
+        title.style.setProperty("font-size", size + "px", "important");
+      }
+      // Only if a single word still can't fit at the smallest size do we allow
+      // breaking inside it — better a broken word than text spilling off a book.
+      if (overflows()) title.classList.add("mwi-break");
+    }
+  }
+
   var heroRenderedLang = null;
   function renderHeroCard() {
     var slot = document.querySelector(".mw-hero-r");
@@ -410,8 +458,12 @@
       if (state.on) renderBar();
     }
     renderHeroCard();   // internally guarded, only mutates when needed
+    fitLibraryCovers(); // no-op unless the library view is on screen
   }
+  // Only childList/characterData — NOT attributes, so fitLibraryCovers()
+  // writing inline styles can never retrigger this observer.
   var mo = new MutationObserver(function () { refreshAll(); });
+  window.addEventListener("resize", fitLibraryCovers);
 
   function boot() {
     var root = document.getElementById("root");
