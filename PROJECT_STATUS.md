@@ -65,12 +65,22 @@ hidden iframe; scroll is locked while drawing (mobile scroll/draw
 conflict). The hero's right column (`.mw-hero-r`) now renders EMPTY in the
 bundle (the old drawboard's call site `s.jsx(ap,{t:n})` was replaced with
 `null`; the dead `ap` function remains, harmless) and the script mounts an
-invitation card into it. (2) **Dot-to-dot star** next to the shop's "All
-books" heading — a body-appended overlay (never inserts into
-React-managed DOM), pointer-events pass through except the dots. Language
-is detected from `.mw-langbtn` (shows the OTHER language: "ES" = site in
-EN); a MutationObserver on #root re-renders the layer's strings on
-toggle — its handlers are guarded to avoid mutate-observe loops.
+invitation card into it. (2) **"My library" as a bookshelf** — pure CSS
+(no bundle surgery, no React-DOM insertion): the CSS in mw-interactive.js
+restyles the bundle's `.mw-libgrid`/`.mw-librow` (a plain row list) into
+book covers standing on warm wooden shelf ledges, labels hanging beneath,
+lift-on-hover revealing the download button; the empty state becomes an
+empty shelf (the bundle's own copy already says "waiting on the shelf").
+Selectors are scoped `.mw-root ...` to beat the bundle's single-class
+rules; `!important` only where the bundle sets inline styles (cover
+width). To DEMO it with content: owned books live in React state
+(`[d,v]=useState([])`, no persistence — populated only by real checkout),
+so seed a throwaway preview bundle by replacing `useState([])` with a few
+`{id,date}` objects; never ship that seed. Language is detected from
+`.mw-langbtn` (shows the OTHER language: "ES" = site in EN); a
+MutationObserver on #root re-renders the layer's strings on toggle — its
+handlers are guarded to avoid mutate-observe loops. (A dot-to-dot shop
+star was built and then removed at Dan's request; don't reintroduce it.)
 
 **Road Trip Games shipped 2026-07-20** (id `tripgames`) — the resolved
 decision in `PRODUCT_QUEUE.md` to merge the old "Paper Games for Road

@@ -20,6 +20,8 @@
   var CORAL = "#E8604C";
   var VIOLET = "#7C6FD0";
   var SWATCHES = [INK, OCHRE, TEAL, CORAL, VIOLET];
+  var WOOD = "#C08A3E";     // shelf ledge (warm wood, sits with the ochre)
+  var WOOD_D = "#946325";   // ledge underside shadow
 
   // Real prompts, real page numbers. {book id, display name, total pages}
   var BOOKS = {
@@ -104,6 +106,23 @@
     ".mwi-hero p{font-size:14px;color:" + INK + ";line-height:1.5;margin:0 0 16px}" +
     ".mwi-hero button{background:" + OCHRE + ";border:2px solid " + INK + ";border-radius:999px;padding:9px 18px;font-weight:800;font-size:14px;color:" + INK + ";cursor:pointer;box-shadow:2px 2px 0 rgba(32,48,58,.3)}" +
     ".mwi-hero button:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(32,48,58,.3)}" +
+    // --- "My library" as a bookshelf. Restyles the bundle's .mw-libgrid /
+    //     .mw-librow (a row list) into books standing on wooden shelves.
+    //     Scoped under .mw-root so it beats the bundle's single-class rules;
+    //     !important only where the bundle sets inline styles (cover width).
+    ".mw-root .mw-libgrid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));grid-auto-rows:262px;align-items:start;justify-items:center;gap:0!important;margin-top:26px;padding:8px 14px 0;" +
+      "background:repeating-linear-gradient(to bottom,transparent 0,transparent 170px," + WOOD + " 170px," + WOOD + " 179px," + WOOD_D + " 179px," + WOOD_D + " 184px,transparent 184px,transparent 262px)}" +
+    ".mw-root .mw-librow{flex-direction:column!important;align-items:center;justify-content:flex-start;gap:0;background:transparent!important;border:none!important;box-shadow:none!important;padding:0 8px!important;height:100%;text-align:center;transition:transform .16s ease}" +
+    ".mw-root .mw-librow:hover{transform:translateY(-6px)}" +
+    ".mw-root .mw-librow>div:first-child{width:120px!important;filter:drop-shadow(2px 6px 4px rgba(32,48,58,.34))}" +
+    ".mw-root .mw-libinfo{flex:none!important;display:flex;flex-direction:column;align-items:center;gap:2px;max-width:150px;margin-top:24px}" +
+    ".mw-root .mw-libinfo .mw-cardtitle{font-size:13.5px!important;line-height:1.25;text-align:center}" +
+    ".mw-root .mw-libinfo .mw-dim{font-size:11px!important;opacity:.6}" +
+    ".mw-root .mw-librow .mw-btn-sm{margin-top:8px!important;opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s;font-size:12px!important;padding:4px 12px!important}" +
+    ".mw-root .mw-librow:hover .mw-btn-sm,.mw-root .mw-librow:focus-within .mw-btn-sm{opacity:1;transform:none}" +
+    // empty state as an empty wooden shelf (copy already says "on the shelf")
+    ".mw-root .mw-empty{border:none!important;background:repeating-linear-gradient(to bottom,transparent 0,transparent 82px," + WOOD + " 82px," + WOOD + " 91px," + WOOD_D + " 91px," + WOOD_D + " 96px,transparent 96px,transparent 130px);min-height:130px;padding-top:24px!important}" +
+    "@media(max-width:560px){.mw-root .mw-libgrid{grid-template-columns:repeat(auto-fill,minmax(116px,1fr));grid-auto-rows:222px;background:repeating-linear-gradient(to bottom,transparent 0,transparent 138px," + WOOD + " 138px," + WOOD + " 146px," + WOOD_D + " 146px," + WOOD_D + " 150px,transparent 150px,transparent 222px)}.mw-root .mw-librow>div:first-child{width:96px!important}.mw-root .mw-libinfo{margin-top:20px}}" +
     "@media print{.mwi-fab,.mwi-bar{display:none!important}}";
 
   var styleEl = document.createElement("style");
