@@ -1,6 +1,6 @@
 # Maybewell Books — Project Status / Handover Brief
 
-_Last updated: 2026-07-20. Written to be read cold, at the start of a brand
+_Last updated: 2026-07-21. Written to be read cold, at the start of a brand
 new Claude Code conversation with zero prior context. If you're that
 conversation: read this whole file before touching anything._
 
@@ -65,22 +65,43 @@ hidden iframe; scroll is locked while drawing (mobile scroll/draw
 conflict). The hero's right column (`.mw-hero-r`) now renders EMPTY in the
 bundle (the old drawboard's call site `s.jsx(ap,{t:n})` was replaced with
 `null`; the dead `ap` function remains, harmless) and the script mounts an
-invitation card into it. (2) **"My library" as a bookshelf** — pure CSS
-(no bundle surgery, no React-DOM insertion): the CSS in mw-interactive.js
-restyles the bundle's `.mw-libgrid`/`.mw-librow` (a plain row list) into
-book covers standing on warm wooden shelf ledges, labels hanging beneath,
-lift-on-hover revealing the download button; the empty state becomes an
-empty shelf (the bundle's own copy already says "waiting on the shelf").
-Selectors are scoped `.mw-root ...` to beat the bundle's single-class
-rules; `!important` only where the bundle sets inline styles (cover
-width). To DEMO it with content: owned books live in React state
-(`[d,v]=useState([])`, no persistence — populated only by real checkout),
-so seed a throwaway preview bundle by replacing `useState([])` with a few
-`{id,date}` objects; never ship that seed. Language is detected from
-`.mw-langbtn` (shows the OTHER language: "ES" = site in EN); a
-MutationObserver on #root re-renders the layer's strings on toggle — its
-handlers are guarded to avoid mutate-observe loops. (A dot-to-dot shop
-star was built and then removed at Dan's request; don't reintroduce it.)
+invitation card into it. (2) **"My library" as a bookshelf of 3D books** —
+CSS-only styling (no bundle surgery, no React-DOM insertion) plus one
+small JS pass. The CSS restyles the bundle's `.mw-libgrid`/`.mw-librow`
+(a plain row list) into covers standing on warm wooden shelf ledges,
+labels hanging beneath, lift-on-hover revealing the download button; the
+empty state becomes an empty shelf (the bundle's own copy already says
+"waiting on the shelf"). Each cover is a real 3D book — ported from a
+React/Tailwind `<Book>` component Dan supplied, since this repo has no
+build tooling to compile JSX or resolve Tailwind: `perspective:900px` on
+the wrapper, `preserve-3d` on `.mw-cover`, `::before` = back cover at
+`translateZ(-13px)`, `::after` = page block rotated 90° on the right
+edge, spine shading in `.mw-cover`'s existing 9% padding, and a
+`rotateY(-20deg)` hover. **Never put `filter` on those ancestors — it
+flattens `preserve-3d`** (this silently killed the effect once; the
+shadow lives in `box-shadow` instead).
+
+`fitLibraryCovers()` auto-sizes each cover title: the bundle hardcodes
+`fontSize:19px` inline (sized for full-page covers), which overflowed the
+120px book both ways. It steps 15px→8px per book until the longest whole
+word fits the width and lines fit the height, writing inline with
+`important` (must beat React's inline size *and* the stylesheet
+fallback). **Mid-word breaking is deliberately off** — a `break-word`
+attempt "fit" by butchering words ("The Impossibl/e Garden"), which reads
+worse than overflow; `.mwi-break` is a last-resort class only.
+
+Everything is scoped `.mw-root .mw-librow ...` so only the library gets
+3D books — shop/product/cart covers stay flat (verified). The
+MutationObserver watches childList/characterData but **not attributes**,
+so the JS writing inline styles can't retrigger it.
+
+To DEMO the library with content: owned books live in React state
+(`[d,v]=I.useState([])`, no persistence — populated only by real
+checkout), so seed a throwaway preview bundle by replacing `useState([])`
+with a few `{id,date}` objects and point index.html at it; **never ship
+that seed**. Language is detected from `.mw-langbtn` (it shows the OTHER
+language: "ES" = site in EN). (A dot-to-dot shop star was built and then
+removed at Dan's request; don't reintroduce it.)
 
 **Road Trip Games shipped 2026-07-20** (id `tripgames`) — the resolved
 decision in `PRODUCT_QUEUE.md` to merge the old "Paper Games for Road
@@ -127,7 +148,42 @@ day review — check for an approval email. Once approved:
 Confirmed via Netlify API as of this writing: env vars are `ORDERS_FROM_EMAIL`
 and `RESEND_API_KEY` only — no Lemon Squeezy secrets set yet.
 
-## Deploying: FIXED (2026-07-20) — push-to-deploy now works, but still verify
+## ⛔ DEPLOYS ARE BLOCKED (2026-07-21): Netlify credits exhausted
+
+**Nothing has reached production since commit `f541509`.** Every deploy
+after it is rejected before it starts:
+
+```
+"state": "error", "skipped": true,
+"error_message": "Skipped due to account credit usage exceeded"
+```
+
+This is an **account-level block, not a build problem** — `netlify deploy
+--prod` from the CLI also fails (`JSONHTTPError: Forbidden`), so there is
+no workaround from this side. Netlify migrated this Free account to a
+**shared credit pool** (`type_slug: "credit-free"`, 300 credits/month
+covering builds, dev servers, etc.), and the 2026-07-20 session burned
+through it diagnosing the push-to-deploy bug (many forced `clear_cache`
+rebuilds).
+
+- Usage period: **2026-07-13 → 2026-08-13** (auto-resets on that date)
+- A grace top-up was already auto-granted 2026-07-21 01:26 and was not enough
+- `has_stripe_payment_method: true` but `auto_topup_enabled: false`
+
+**Only Dan can unblock it** (all three options involve money or waiting;
+do not attempt billing changes on his behalf): enable **Auto top-up**, or
+upgrade the plan, or wait for the 2026-08-13 reset. Check current state:
+
+```bash
+npx --yes netlify-cli api getAccount --data '{"account_id":"698faf9b0daa0ff131996bc0"}'
+```
+
+**Waiting in the repo, already committed and pushed, will go live on the
+first successful deploy:** Road Trip Games (`tripgames`), The
+Grandparents' Book cover with the For Every Chapter ribbon, "margins
+mode" + the bookshelf library, and the removal of The Autumn Book.
+
+## Deploying: mechanism FIXED (2026-07-20) — but see the credit block above
 
 The Netlify site (`maybewellbooks`, site id
 `12dd4eba-e81c-4fa7-87d5-ad18b5d37496`) has GitHub linked (base directory
@@ -242,9 +298,11 @@ MAYBEWELL BOOKS/
 
 ## Hard-won lessons (read before editing the bundle again)
 
-0. **See "Deploying" section above** — GitHub auto-deploy is fixed as of
-   2026-07-20; `git push` is a real deploy now, but always verify a live
-   asset after anything you actually care about.
+0. **DEPLOYS ARE CURRENTLY BLOCKED** on exhausted Netlify credits — see
+   the "⛔ DEPLOYS ARE BLOCKED" section above before promising anything
+   will go live. The push-to-deploy *mechanism* is fixed (2026-07-20);
+   once credits are restored, `git push` is a real deploy again — but
+   always verify a live asset after anything you actually care about.
 1. **Always rename `index-*.js` when you change it**, and update the
    `<script src>` in `index.html` to match. `/assets/*` is cached
    `must-revalidate, max-age=300` (deliberately NOT immutable).
@@ -299,21 +357,31 @@ MAYBEWELL BOOKS/
 
 ## Immediate next steps, in order
 
-1. Check whether Lemon Squeezy store activation has come through (as of
-   2026-07-20, still not — only the "application received" email from
-   2026-07-15 exists, no approval yet).
-2. If yes: follow "What's blocking a real sale" above — copy to live mode,
-   set the 3 secrets in Netlify, verify the webhook payload shape, do one
-   real test purchase end to end.
-3. Deploying is fixed as of 2026-07-20 (see "Deploying" section) — `git
-   push` now reliably deploys. Still spot-check a live asset after any
-   push you actually care about; don't blind-trust it forever.
-4. Review whatever `daily-product-builder` has queued up as
-   `Built (awaiting review)` — check `PRODUCT_QUEUE.md`'s status table
-   first thing; as of 2026-07-20 nothing is currently in that state (Days
-   7 and 9–13 are still `Pending`, not yet built).
-5. Ongoing: the two standing agents keep the queue moving on their own
-   schedule. Your job when picking this project back up is mostly
-   reviewing what they've already built/proposed and clearing blockers
-   like Lemon Squeezy above — not necessarily starting new build work from
-   scratch.
+1. **Ask Dan whether the Netlify credit block is cleared** (auto top-up
+   enabled, plan upgraded, or the 2026-08-13 reset passed). Verify with
+   `getAccount` — don't take "I fixed it" as proof. Until then **nothing
+   ships**, and a pile of finished work is queued behind it (Road Trip
+   Games, the Grandparents ribbon cover, margins mode, the bookshelf
+   library, the Autumn Book removal).
+2. Once unblocked: push (or trigger a build), confirm `state: ready`, then
+   fetch a live asset to prove it — e.g.
+   `https://maybewellbooks.com/assets/previews/tripgames-1.jpg` should be
+   `image/jpeg 200`, and the site's `index.html` should reference the
+   current bundle hash.
+3. Check whether Lemon Squeezy store activation has come through (as of
+   2026-07-21, still not — only the "application received" email from
+   2026-07-15 exists, no approval yet). Polar.sh remains the researched
+   plan B (MoR, near-instant onboarding; its 2026 free tier is 5% + 50¢,
+   so it is no longer *cheaper* than LS — the reason to switch is speed).
+4. If approved: follow "What's blocking a real sale" above — copy to live
+   mode, set the 3 secrets in Netlify (`DOWNLOAD_TOKEN_SECRET` is already
+   set and verified), confirm the webhook payload shape against a real
+   test event, then one real end-to-end test purchase.
+5. **"For Every Chapter" (6 senior-line products) is built and QA-clean
+   but NOT integrated** — no prices agreed, not in either catalog, no
+   preview JPGs generated. Needs Dan's per-product approval + pricing
+   before shipping (see the line's section in `PRODUCT_QUEUE.md` history
+   and the per-product folders at repo root).
+6. Review whatever `daily-product-builder` has queued as
+   `Built (awaiting review)` in `PRODUCT_QUEUE.md`; as of 2026-07-21
+   nothing is in that state (Day 7 and Days 9–13 are still `Pending`).
