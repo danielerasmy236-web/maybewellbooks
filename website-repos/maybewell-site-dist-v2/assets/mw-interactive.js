@@ -505,6 +505,7 @@
     try { localStorage.setItem(COOKIE_KEY, value); } catch (e) {}
     cookieBanner.classList.remove("on");
     fab.classList.remove("mwi-shifted");
+    if (value === "accepted" && window.mwLoadAnalytics) window.mwLoadAnalytics();
   }
 
   var cookieRenderedLang = null;

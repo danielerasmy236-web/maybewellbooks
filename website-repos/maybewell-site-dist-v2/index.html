@@ -20,6 +20,9 @@
     <!-- Interactive layer: "margins mode" full-page drawing + shop star.
          Plain deferred script, runs after the bundle; see mw-interactive.js. -->
     <script defer src="/assets/mw-interactive.js"></script>
+    <!-- Umami analytics — gated behind window.mwConsent(); see mw-analytics.js.
+         Must load after mw-interactive.js (defines mwConsent/mwLoadAnalytics). -->
+    <script defer src="/assets/mw-analytics.js"></script>
   </head>
   <body style="margin:0">
     <div id="root"></div>
